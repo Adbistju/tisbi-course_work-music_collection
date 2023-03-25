@@ -46,6 +46,7 @@ public class MainTest {
 
         Thread thread = new Thread(() -> {
             int a;
+            float b;
             while (true) {
                 a = scanner.nextInt();
                 if (a == 0) {
@@ -60,6 +61,13 @@ public class MainTest {
                     a = scanner.nextInt();
                     player.stopMusic();
                     player.playList(a, 0);
+                } else if (a == 5) {
+                    System.out.println("number track:");
+                    a = scanner.nextInt();
+                    System.out.println("percent track:");
+                    b = scanner.nextFloat();
+                    player.stopMusic();
+                    player.playList(a, b);
                 }
             }
         });
@@ -67,7 +75,7 @@ public class MainTest {
         thread.start();
 
         player.setPlaylist(List.of(musicFile, musicFile1, musicFile2, musicFile3));
-        player.playList();
+        player.playList(player.getIndexTrack(), 0);
     }
 
     @Test
@@ -82,7 +90,12 @@ public class MainTest {
     public void playCurrentTrackPercentSkipTest() throws InvalidDataException, UnsupportedTagException, IOException {
         MusicFile musicFile = new MusicFile(muss);
         Player player = new Player();
-        player.playTrackPercent(musicFile,0, 75f, 100f);
+        player.playTrack(
+                musicFile,
+                0,
+                TrackUtils.convertPercentToFrame(musicFile,53.1f),
+                TrackUtils.convertPercentToFrame(musicFile,55.5f)
+        );
     }
 
     @Test

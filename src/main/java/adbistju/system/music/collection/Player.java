@@ -7,12 +7,6 @@ import javazoom.jl.player.advanced.AdvancedPlayer;
 import javazoom.jl.player.advanced.PlaybackEvent;
 import javazoom.jl.player.advanced.PlaybackListener;
 
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.FloatControl;
-import javax.sound.sampled.Line;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.Mixer;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,26 +16,28 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Player {
 
+    private static final int DEFAULT_POSITION = 0;
+    private static final int END_VALUE = -1;
+    
     private final PlaybackTrackStateListener infoListenerTest;
 
     private AdvancedPlayer player;
     private List<MusicFile> playlist;
-    private MusicFile currentTrack;
     private AtomicInteger indexTrack;
     private AtomicBoolean nextPlay;
     private AtomicInteger positionTrack;
     private AtomicBoolean pausePlay;
 
     public Player() {
-        this.indexTrack = new AtomicInteger(0);
+        this.indexTrack = new AtomicInteger(DEFAULT_POSITION);
         this.nextPlay = new AtomicBoolean(true);
-        this.positionTrack = new AtomicInteger(0);
+        this.positionTrack = new AtomicInteger(DEFAULT_POSITION);
         this.infoListenerTest = new PlaybackTrackStateListener();
         this.pausePlay = new AtomicBoolean(false);
     }
 
     public void playList() {
-        playList(indexTrack.get(), 0);
+        playList(indexTrack.get(), END_VALUE);
     }
 
     public void playList(int indexTrack, float percentPosition) {
@@ -52,29 +48,10 @@ public class Player {
         pausePlay.set(false);
         nextPlay.set(true);
 
-        playTrackPercent(playlist.get(indexTrack), indexTrack, percentPosition, -1);
-        indexTrack++;
+        MusicFile currentFile = playlist.get(indexTrack);
 
-        for (int i = indexTrack; i < playlist.size(); i++) {
-            if (!nextPlay.get()) {
-                return;
-            }
-
-            playTrackPercent(playlist.get(i), i, 0, -1);
-        }
-
-    }
-
-    public void playListPosition(int indexTrack, int position) {
-        if (!pausePlay.get()) {
-            stopMusic();
-        }
-
-        pausePlay.set(false);
-        nextPlay.set(true);
-
-        if (position < 0) {
-            position = positionTrack.get();
+        if (percentPosition >= DEFAULT_POSITION) {
+            positionTrack.set(TrackUtils.convertPercentToFrame(currentFile, percentPosition));
         }
 
         for (int i = indexTrack; i < playlist.size(); i++) {
@@ -82,29 +59,22 @@ public class Player {
                 return;
             }
 
-            playTrack(playlist.get(i), i, position, -1);
+            playTrack(playlist.get(i), i, positionTrack.get(), END_VALUE);
         }
 
-    }
-
-    public void playTrackPercent(MusicFile currentTrack, int indexTrack, float percentPosition, float percentEnd) {
-        long a = (currentTrack.getFrameCount() / 100);// 100 часть для процента
-        int position = Math.toIntExact((long) (a * percentPosition));
-        int endPosition = Math.toIntExact((long) (a * percentEnd));
-        playTrack(currentTrack, indexTrack, position, endPosition);
     }
 
     public void playTrack(MusicFile currentTrack, int indexTrack, int position, int endPosition) {
 
         this.indexTrack.set(indexTrack);
-        this.currentTrack = currentTrack;
+        this.positionTrack.set(DEFAULT_POSITION);
 
         AudioDevice auDev = new JavaSoundAudioDevice();
         try {
             InputStream musicStream = new FileInputStream(currentTrack.getPath());
             player = new AdvancedPlayer(musicStream, auDev);
             player.setPlayBackListener(infoListenerTest);
-            player.play(position, endPosition < 0 ? currentTrack.getFrameCount() : endPosition);
+            player.play(position, endPosition < DEFAULT_POSITION ? currentTrack.getFrameCount() : endPosition);
             musicStream.close();
             player.close();
         } catch (JavaLayerException | IOException e) {
@@ -125,6 +95,11 @@ public class Player {
     }
 
     public void stopMusic() {
+        pausePlay.set(false);
+        nextPlay.set(false);
+        indexTrack.set(DEFAULT_POSITION);
+        positionTrack.set(DEFAULT_POSITION);
+        
         if (player != null) {
             try {
                 player.stop();
@@ -132,27 +107,27 @@ public class Player {
 
             }
         }
-        pausePlay.set(false);
-        nextPlay.set(false);
-        indexTrack.set(0);
-        positionTrack.set(0);
-        currentTrack = playlist.get(0);
     }
 
     public void pauseMusic() {
+        pausePlay.set(true);
+        nextPlay.set(false);
+        
         if (player != null) {
             player.stop();
         }
-        pausePlay.set(true);
-        nextPlay.set(false);
     }
 
     public void nextMusic() {
         if (player != null) {
             player.stop();
             nextPlay.set(true);
-            positionTrack.set(0);
+            positionTrack.set(DEFAULT_POSITION);
         }
+    }
+
+    public int getIndexTrack() {
+        return indexTrack.get();
     }
 
     public class PlaybackTrackStateListener extends PlaybackListener {
