@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Player {
 
-    private final Listener infoListenerTest;
+    private final PlaybackTrackStateListener infoListenerTest;
 
     private AdvancedPlayer player;
     private List<MusicFile> playlist;
@@ -30,41 +30,75 @@ public class Player {
     private AtomicInteger indexTrack;
     private AtomicBoolean nextPlay;
     private AtomicInteger positionTrack;
+    private AtomicBoolean pausePlay;
 
     public Player() {
         this.indexTrack = new AtomicInteger(0);
         this.nextPlay = new AtomicBoolean(true);
         this.positionTrack = new AtomicInteger(0);
-        this.infoListenerTest = new Listener();
+        this.infoListenerTest = new PlaybackTrackStateListener();
+        this.pausePlay = new AtomicBoolean(false);
     }
 
     public void playList() {
-        playList(indexTrack.get());
+        playList(indexTrack.get(), 0);
     }
 
-    public void playList(int indexTrack) {
-        stopMusic();
+    public void playList(int indexTrack, float percentPosition) {
+        if (!pausePlay.get()) {
+            stopMusic();
+        }
+
+        pausePlay.set(false);
         nextPlay.set(true);
-        this.indexTrack.set(indexTrack);
-        for (int i = this.indexTrack.get(); i < playlist.size(); i++) {
+
+        playTrackPercent(playlist.get(indexTrack), indexTrack, percentPosition, -1);
+        indexTrack++;
+
+        for (int i = indexTrack; i < playlist.size(); i++) {
             if (!nextPlay.get()) {
                 return;
             }
-            currentTrack = playlist.get(i);
-            this.indexTrack.set(i);
-            playTrack(currentTrack, positionTrack.get(), -1);
+
+            playTrackPercent(playlist.get(i), i, 0, -1);
         }
+
     }
 
-    public void playTrackPercent(MusicFile currentTrack, float percentPosition, float percentEnd) {
-        long a = (currentTrack.getLength() / 1000 / 100);// 1000 попугаев + 100 часть для процента
+    public void playListPosition(int indexTrack, int position) {
+        if (!pausePlay.get()) {
+            stopMusic();
+        }
+
+        pausePlay.set(false);
+        nextPlay.set(true);
+
+        if (position < 0) {
+            position = positionTrack.get();
+        }
+
+        for (int i = indexTrack; i < playlist.size(); i++) {
+            if (!nextPlay.get()) {
+                return;
+            }
+
+            playTrack(playlist.get(i), i, position, -1);
+        }
+
+    }
+
+    public void playTrackPercent(MusicFile currentTrack, int indexTrack, float percentPosition, float percentEnd) {
+        long a = (currentTrack.getFrameCount() / 100);// 100 часть для процента
         int position = Math.toIntExact((long) (a * percentPosition));
         int endPosition = Math.toIntExact((long) (a * percentEnd));
-        playTrack(currentTrack, position, endPosition);
+        playTrack(currentTrack, indexTrack, position, endPosition);
     }
 
-    public void playTrack(MusicFile currentTrack, int position, int endPosition) {
+    public void playTrack(MusicFile currentTrack, int indexTrack, int position, int endPosition) {
+
+        this.indexTrack.set(indexTrack);
         this.currentTrack = currentTrack;
+
         AudioDevice auDev = new JavaSoundAudioDevice();
         try {
             InputStream musicStream = new FileInputStream(currentTrack.getPath());
@@ -80,38 +114,6 @@ public class Player {
                 auDev.close();
             }
         }
-    }
-
-    public void volumeControl(int level) {
-        Mixer.Info[] mixers = AudioSystem.getMixerInfo();
-        for (Mixer.Info mixerInfo : mixers) {
-            Mixer mixer = AudioSystem.getMixer(mixerInfo);
-            Line.Info[] lineInfos = mixer.getTargetLineInfo();
-            for (Line.Info lineInfo : lineInfos) {
-                Line line = null;
-                boolean opened = true;
-                try {
-                    line = mixer.getLine(lineInfo);
-                    opened = line.isOpen() || line instanceof Clip;
-                    if (!opened) {
-                        line.open();
-                    }
-                    FloatControl volControl = (FloatControl) line.getControl(FloatControl.Type.VOLUME);
-                    volControl.setValue(floatVolumeLevel(volControl, level));
-                } catch (LineUnavailableException | IllegalArgumentException e) {
-
-                } finally {
-                    if (line != null && !opened) {
-                        line.close();
-                    }
-                }
-            }
-        }
-    }
-
-    private float floatVolumeLevel(FloatControl volControl, int percent) {
-        float mr = volControl.getMaximum() - volControl.getMinimum();
-        return mr / 100 * percent;
     }
 
     public List<MusicFile> getPlaylist() {
@@ -130,6 +132,7 @@ public class Player {
 
             }
         }
+        pausePlay.set(false);
         nextPlay.set(false);
         indexTrack.set(0);
         positionTrack.set(0);
@@ -140,6 +143,7 @@ public class Player {
         if (player != null) {
             player.stop();
         }
+        pausePlay.set(true);
         nextPlay.set(false);
     }
 
@@ -151,8 +155,9 @@ public class Player {
         }
     }
 
-    public class Listener extends PlaybackListener {
-        public Listener() {
+    public class PlaybackTrackStateListener extends PlaybackListener {
+        public PlaybackTrackStateListener() {
+
         }
 
         public void playbackStarted(PlaybackEvent evt) {
@@ -160,7 +165,7 @@ public class Player {
         }
 
         public void playbackFinished(PlaybackEvent evt) {
-            int frame = evt.getFrame() / 25;
+            int frame = evt.getFrame() / 25;//25 попугаев
             positionTrack.set(frame);
         }
     }

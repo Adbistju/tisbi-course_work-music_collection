@@ -58,10 +58,12 @@ public class MainTest {
                     player.stopMusic();
                 } else if (a == 4) {
                     a = scanner.nextInt();
-                    player.playList(a);
+                    player.stopMusic();
+                    player.playList(a, 0);
                 }
             }
         });
+
         thread.start();
 
         player.setPlaylist(List.of(musicFile, musicFile1, musicFile2, musicFile3));
@@ -80,7 +82,7 @@ public class MainTest {
     public void playCurrentTrackPercentSkipTest() throws InvalidDataException, UnsupportedTagException, IOException {
         MusicFile musicFile = new MusicFile(muss);
         Player player = new Player();
-        player.playTrackPercent(musicFile, 49.1f, 54f);
+        player.playTrackPercent(musicFile,0, 75f, 100f);
     }
 
     @Test
