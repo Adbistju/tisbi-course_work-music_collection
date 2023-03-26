@@ -13,7 +13,7 @@ public class VolumeController {
 
     }
 
-    private void volumeControl(int percentLevel) {
+    private void volumeControl(float percentLevel) {
         Mixer.Info[] mixers = AudioSystem.getMixerInfo();
         for (Mixer.Info mixerInfo : mixers) {
             Mixer mixer = AudioSystem.getMixer(mixerInfo);
@@ -40,7 +40,7 @@ public class VolumeController {
         }
     }
 
-    private float floatVolumeLevel(FloatControl volControl, int percentLevel) {
+    private float floatVolumeLevel(FloatControl volControl, float percentLevel) {
         float mr = volControl.getMaximum() - volControl.getMinimum();
         return mr / 100 * percentLevel;
     }
