@@ -1,36 +1,31 @@
 package adbistju.system.music.collection;
 
-import com.jfoenix.assets.JFoenixResources;
-import com.jfoenix.controls.JFXSlider;
+import com.mpatric.mp3agic.ID3v1;
 import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.UnsupportedTagException;
 import javafx.application.Application;
-import javafx.beans.binding.Bindings;
 import javafx.event.EventHandler;
-import javafx.geometry.Orientation;
-import javafx.scene.ImageCursor;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Slider;
-import javafx.scene.layout.Background;
-import javafx.scene.media.MediaPlayer;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
-import javafx.scene.control.ContentDisplay;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.media.Media;
 
-import javafx.util.Duration;
 import org.kordamp.bootstrapfx.BootstrapFX;
 import org.kordamp.bootstrapfx.scene.layout.Panel;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Main extends Application {
 
@@ -63,112 +58,71 @@ public class Main extends Application {
 
 
         Panel panel = new Panel("This is the title");
-        String enteredByUser = "abcdef";
-//        panel.setStyle("-fx-background-color: " + "linear-gradient(from 25% 25% to 100% 100%, #dc143c, #abcdef)");
-
         panel.setStyle("-fx-background-color: " +
                 "linear-gradient(from 0% 100% to 100% 0%, #3f87a6, #ebf8e1, #f69d3c, #e66465)"
         );
 
-//        panel.setStyle("-fx-background-insets: "
-//                        + "linear-gradient(from 100% 0% to 0% 70%, #3f87a6, #FFFFFF),"
-////                        + "-fx-background-color: "
-//                        + " linear-gradient(from 0% 100% to 100% 0%, #f69d3c, #FFFFFF)"
-//
-////                "linear-gradient(from 0% 100% to 100% 0%, #3f87a6, #ebf8e1, #f69d3c, #e66465)"
-//        );
-
 
         BorderPane content = new BorderPane();
 
-        Slider slider = sliderTrack(content);
-//https://morioh.com/p/f394ce9e52d2
-        JFXSlider slider1 = new JFXSlider();
-        slider1.setOpacity(1);
-//        slider1.getStyleClass().add("jfx-slider");
+        BorderPane trackBox = new BorderPane();
+//        trackBox.setStyle("-fx-background-color: #ebf8e1");
 
-//        slider1.setStyle(
-//                " -jfx-default-track: #f69d3c;" +
-//                        "       .jfx-slider-style . track {" +
-//                        "-fx-background-color: #3f87a6;" +
-//                        "-fx-pref-height: 20px;" +
-//                        "-fx-pref-height: 20px;" +
-//                        "}"
-//        );
-        System.out.println(slider1.getCssMetaData());
-        System.out.println(slider1.getStyleClass().get(1));
-//        slider1.getStyleClass().add("jfx-slider");
-//        JFoenixResources.load("data/style.css").toExternalForm();
-//        String scc = getClass().getResource("path/style.css").toExternalForm();
-//        String scc = new FileInputStream("style.css").read();
-//        slider1.getStyleClass().add(scc);
-//        slider1.setStyle("\n" +
-//                ".jfx-slider .track,\n" +
-//                ".jfx-slider:vertical .track {\n" +
-//                "    -fx-background-color: -jfx-default-track;\n" +
-//                "    -fx-background-radius: 5;\n" +
-//                "    -fx-background-insets: 0;\n" +
-//                "    -fx-pref-width: 20px;\n" +
-//                "    -fx-pref-height: 20px;\n" +
-//                "}\n" +
-//                "\n" +
-//                ".jfx-slider .thumb,\n" +
-//                ".jfx-slider:focused .thumb {\n" +
-//                "    -fx-background-color: -jfx-default-thumb;\n" +
-//                "    -fx-background-radius: 20;\n" +
-//                "    -fx-background-insets: 0;\n" +
-//                "}");
-//        file:data/3.png
-//        scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
-        slider1.setMin(0);
-        slider1.setMax(100);
-        slider1.setValue(10);
-//        slider1.setCursor(new ImageCursor(new Image("file:data/3.png")));
 
-//        slider1.setMajorTickUnit(10);
-        //zoomSlider.setMinorTickCount(5);
-//        slider1.setShowTickLabels(true);
-//        slider1.setShowTickMarks(true);
-//        slider1.setSnapToTicks(false);
-        slider1.setBlockIncrement(10);
-        slider1.setOrientation(Orientation.HORIZONTAL);
-//        slider1.setIndicatorPosition(JFXSlider.IndicatorPosition.LEFT);
-        slider1.styleProperty().bind(Bindings.createStringBinding(() -> {
-            double min = slider.getMin();
-            double max = slider.getMax();
-            double value = slider.getValue() ;
-            return createSliderStyle(slider.getValue(), min, max, value);
-        }, slider.valueProperty()));
-        content.setBottom(slider1);
+        VBox vbox = new VBox();
+        vbox.setPadding(new Insets(10, 10, 10, 10));
+        vbox.setSpacing(10);
 
-        nextTrack(content);
-        odonButton(content);
-        stop(content);
+        List<MusicFile> tracks = player.getPlaylist();
 
-//        Thread thread = new Thread(() -> {
-//
-//            while (true) {
-//                try {
-//                    Thread.sleep(300);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//                if (count >= 100) {
-//                    count = 0;
-//                } else {
-//                    count = count + 1;
-//                }
-//                slider.setValue(count);
-//            }
-//        });
-//        thread.start();
+        for (int i = 0; i < tracks.size(); i++) {
+            ID3v1 id3v1Tag = tracks.get(i).getId3v1Tag();
+            try {
+                HBox hBox = new HBox(
+                        new Text(String.valueOf(i)),
+                        new Text("|"),
+                        new Text(id3v1Tag.getTitle()),
+                        new Text("|"),
+                        new Text(id3v1Tag.getAlbum()),
+                        new Text("|"),
+                        new Text(id3v1Tag.getArtist()),
+                        new Text("|"),
+                        new Text(id3v1Tag.getGenre() + " (" + id3v1Tag.getGenreDescription() + ")")
+                );
+                hBox.setAlignment(Pos.BASELINE_LEFT);
+                hBox.setSpacing(6);
+//                hBox.setPadding(new Insets(3, 100, 3, 10));
+                vbox.getChildren().add(hBox);
+            } catch (Exception e) {
+
+            }
+        }
+
+        trackBox.setCenter(vbox);
+
+        content.setTop(trackBox);
+
+        HBox divVolume = new HBox();
+        divVolume.getChildren().setAll(sliderTrack());
+        divVolume.setAlignment(Pos.TOP_LEFT);
+
+
+        HBox div = new HBox();
+        div.setSpacing(20);
+        div.setAlignment(Pos.BASELINE_CENTER);
+        BorderPane dive = new BorderPane();
+        Button playTrackButton = playTrack();
+        div.setMaxHeight(playTrackButton.getHeight());
+
+        div.getChildren().addAll(new Button("1"), new Button("2"), new Button("3"), nextTrack(), playTrackButton, stopMusic(), divVolume);
+        div.setPadding(new Insets(10, 10, 10, 10));
+
+        dive.setBottom(sliderTrack());
+        content.setCenter(dive);
+        content.setBottom(div);
 
         panel.setBody(content);
         Scene scene = new Scene(panel);
-
-//        String scc = getClass().getResource("path/style.css").toExternalForm();
-//        scene.getStylesheets().add(scc);
-
         scene.getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());
         stage.setTitle("BootstrapFX");
         stage.setScene(scene);
@@ -178,72 +132,23 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
+        try {
+            MusicFile musicFile = new MusicFile(muss);
+            MusicFile musicFile1 = new MusicFile(muss1);
+            MusicFile musicFile2 = new MusicFile(muss2);
+            MusicFile musicFile3 = new MusicFile(muss3);
+            player.setPlaylist(List.of(musicFile, musicFile1, musicFile2, musicFile3));
+        } catch (IOException | UnsupportedTagException | InvalidDataException e) {
+
+        }
         launch();
     }
 
-    private String createSliderStyle(double startingValue, double min, double max, double value) {
-        StringBuilder gradient = new StringBuilder("-slider-track-color: ");
-        String defaultBG = "derive(-fx-control-inner-background, -5%) ";
-        gradient.append("linear-gradient(to right, ").append(defaultBG).append("0%, ");
-
-//        double valuePercent = 100.0 * (value - min) / (max - min);
-
-        double valuePercent = value;
-
-        double startingValuePercent = startingValue * 100.0;
-
-
-        if (valuePercent > startingValuePercent) {
-            gradient.append(defaultBG).append(startingValuePercent).append("%, ");
-            gradient.append("green ").append(startingValuePercent).append("%, ");
-            gradient.append("green ").append(valuePercent).append("%, ");
-            gradient.append(defaultBG).append(valuePercent).append("%, ");
-            gradient.append(defaultBG).append("100%); ");
-        } else {
-            gradient.append(defaultBG).append(valuePercent).append("%, ");
-            gradient.append("red ").append(valuePercent).append("%, ");
-            gradient.append("red ").append(startingValuePercent).append("%, ");
-            gradient.append(defaultBG).append(startingValuePercent).append("%, ");
-            gradient.append(defaultBG).append("100%); ");
-        }
-        return gradient.toString();
-    }
-
-    public Slider sliderTrack(BorderPane content) {
-
+    public Slider sliderTrack() {
         Slider slider = new Slider(0, 100, 50);
-
-
-        slider.setStyle(" -fx-background-color:\n" +
-                "          -fx-shadow-highlight-color,\n" +
-                "          linear-gradient(to bottom, derive(-fx-text-box-border, -10%), -fx-text-box-border),\n" +
-                "          linear-gradient(to bottom,\n" +
-                "            derive(-fx-control-inner-background, -9%),\n" +
-                "            derive(-fx-control-inner-background, 0%),\n" +
-                "            derive(-fx-control-inner-background, -5%),\n" +
-                "            derive(-fx-control-inner-background, -12%)\n" +
-                "          );\n" +
-                "    -fx-background-insets: 0 0 -1 0, 0, 1;\n" +
-                "    -fx-background-radius: 0.25em, 0.25em, 0.166667em; \n" +
-                "    -fx-padding: 0.25em;");
-//        slider.styleProperty().bind(Bindings.createStringBinding(() -> {
-//            double min = slider.getMin();
-//            double max = slider.getMax();
-//            double value = slider.getValue() ;
-//            return createSliderStyle(slider.getValue(), min, max, value);
-//        }, slider.valueProperty()));
-
-//    setStyle("-slider-track-color: derive(-fx-control-inner-background, -5%) ;");
-
         EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
-//                перекраска слайдера
-//                https://stackoverflow.com/questions/51343759/how-to-change-fill-color-of-slider-in-javafx
-//                slider.setStyle("-fx-background-color: " + "linear-gradient(from " + slider.getValue() + "% " + slider.getValue() + "% to " + (100 - slider.getValue()) + "% " + (100 - slider.getValue()) + "% , #dc143c, #32cd32)");
-//                slider.setStyle("-fx-background-color: linear-gradient(to right, #2D819D 20%, #969696 20%);");
-                slider.setStyle("-fx-background-color: linear-gradient(to left, #2D819D " + (100 - slider.getValue()) + "%, #969696 " + (100 - slider.getValue()) + "%);");
-                System.out.println(slider.getValue());
                 count = (float) slider.getValue();
                 slider.setValue(slider.getValue());
                 Thread thread = new Thread(() -> {
@@ -255,48 +160,14 @@ public class Main extends Application {
             }
         };
         slider.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
-
-        content.setBottom(slider);
-
-        return slider;
+                return slider;
     }
 
-    public void odonButton(BorderPane content) {
-
-//        Media media = new Media("http://path/file_name.mp3");
-//
-//
-//        javafx.scene.media.MediaPlayer mediaPlayer = new javafx.scene.media.MediaPlayer(media);
-//        mediaPlayer.setAutoPlay(true);
-////        javafx.scene.media.MediaPlayer.setAutoPlay(true);
-
-        try {
-            MusicFile musicFile = new MusicFile(muss);
-            MusicFile musicFile1 = new MusicFile(muss1);
-            MusicFile musicFile2 = new MusicFile(muss2);
-            MusicFile musicFile3 = new MusicFile(muss3);
-            player.setPlaylist(List.of(musicFile, musicFile1, musicFile2, musicFile3));
-        } catch (IOException | UnsupportedTagException | InvalidDataException e) {
-
-        }
-
-        Image playButton = new Image("file:data/3.png");
-
-        Button buttonIco = new Button("Hello BootstrapFX", new ImageView(playButton));
-        buttonIco.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-
-//        EventHandler<MouseEvent> eventHandler = new EventHandler<MouseEvent>() {
-//            @Override
-//            public void handle(MouseEvent e) {
-//                buttonIco.setStyle("-fx-background-color: " + "linear-gradient(from 25% 25% to 100% 100%, #32cd32, #dc143c)");
-////                System.out.println("Pause");
-////                player.pauseMusic();
-//            }
-//        };
+    public Button playTrack() {
+        Button buttonIco = new Button("play");
         EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
-                buttonIco.setStyle("-fx-background-color: " + "linear-gradient(from 25% 25% to 100% 100%, #dc143c, #32cd32);" + "-fx-background-radius: " + " 30");
                 System.out.println("Play");
                 Thread thread = new Thread(() -> {
                     player.stopMusic();
@@ -306,16 +177,11 @@ public class Main extends Application {
             }
         };
         buttonIco.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
-
-//        buttonIco.addEventFilter(MouseEvent.MOUSE_PRESSED, eventHandler);
-        content.setLeft(buttonIco);
+        return buttonIco;
     }
 
-    public void nextTrack(BorderPane content) {
-        Button button = new Button("NextTrack");
-
-        button.setStyle("-fx-background-color: " + "linear-gradient(from 25% 25% to 100% 100%, #dc143c, #32cd32);" + "-fx-background-radius: " + " 30");
-
+    public Button nextTrack() {
+        Button button = new Button("NxTr");
         EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
@@ -324,17 +190,12 @@ public class Main extends Application {
             }
         };
         button.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
-
-        button.getStyleClass().setAll("btn", "btn-danger");
-        content.setCenter(button);
-
+//        button.getStyleClass().setAll("btn", "btn-danger");
+        return button;
     }
 
-    public void stop(BorderPane content) {
+    public Button stopMusic() {
         Button button = new Button("stop");
-
-        button.setStyle("-fx-background-color: " + "linear-gradient(from 50% 25% to 50% 100%, #dc143c, #32cd32);" + "-fx-background-radius: " + " 30");
-
         EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
@@ -344,8 +205,6 @@ public class Main extends Application {
         };
         button.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
 
-//        button.getStyleClass().setAll("btn", "btn-danger");
-        content.setRight(button);
-
+        return button;
     }
 }
