@@ -4,10 +4,12 @@ import com.mpatric.mp3agic.ID3v1;
 import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.UnsupportedTagException;
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
@@ -143,7 +145,7 @@ public class Main extends Application {
         Button playTrackButton = playTrack();
         div.setMaxHeight(playTrackButton.getHeight());
 
-        div.getChildren().addAll(new Button("1"), new Button("2"), pauseMusic(), nextTrack(), playTrackButton, stopMusic(), divVolume);
+        div.getChildren().addAll(new Button("1"), prevTrack(), pauseMusic(), nextTrack(), playTrackButton, stopMusic(), divVolume);
         div.setPadding(new Insets(10, 10, 10, 10));
 
         dive.setBottom(sliderTrack());
@@ -175,6 +177,7 @@ public class Main extends Application {
 
     public Slider sliderTrack() {
         Slider slider = new Slider(0, 100, 50);
+
 //        slider.setStyle("-fx-padding: 10 0 0 0");
 //        slider.setStyle(" -fx-background-color:\\n\" +\n" +
 //                "                \"          -fx-shadow-highlight-color,\\n\" +\n" +
@@ -203,7 +206,7 @@ public class Main extends Application {
             }
         };
         slider.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
-                return slider;
+        return slider;
     }
 
     public Button playTrack() {
@@ -212,7 +215,7 @@ public class Main extends Application {
             @Override
             public void handle(MouseEvent e) {
                 System.out.println("Play");
-//                player.stopMusic();
+                player.onStopMusic();
                 Thread thread = new Thread(() -> {
                     player.playList();
                 });
@@ -234,6 +237,23 @@ public class Main extends Application {
         };
         button.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
 //        button.getStyleClass().setAll("btn", "btn-danger");
+        return button;
+    }
+
+    public Button prevTrack() {
+        Button button = new Button("PrTr");
+        EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent e) {
+                player.stopMusic();
+                System.out.println("Previous");
+                Thread thread = new Thread(() -> {
+                    player.playList(player.getIndexTrack()-1, -1);
+                });
+                thread.start();
+            }
+        };
+        button.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
         return button;
     }
 

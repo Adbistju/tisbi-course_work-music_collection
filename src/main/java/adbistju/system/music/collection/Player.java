@@ -66,6 +66,7 @@ public class Player {
 
     public void playTrack(MusicFile currentTrack, int indexTrack, int position, int endPosition) {
 
+        System.out.println(position);
         this.indexTrack.set(indexTrack);
         this.positionTrack.set(DEFAULT_POSITION);
 
@@ -130,6 +131,16 @@ public class Player {
         return indexTrack.get();
     }
 
+    public void onStopMusic() {
+        if (player != null) {
+            try {
+                player.stop();
+            } catch (Exception e) {
+
+            }
+        }
+    }
+
     public class PlaybackTrackStateListener extends PlaybackListener {
         public PlaybackTrackStateListener() {
 
@@ -140,7 +151,9 @@ public class Player {
         }
 
         public void playbackFinished(PlaybackEvent evt) {
-            int frame = evt.getFrame() / 25;//25 попугаев
+            int frame = evt.getFrame();/* / 25;//25 попугаев*/
+            System.out.println(evt.getFrame()/*/25*/);
+            System.out.println(indexTrack);
             positionTrack.set(frame);
         }
     }
