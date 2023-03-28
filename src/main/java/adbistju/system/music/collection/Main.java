@@ -22,10 +22,12 @@ import javafx.scene.layout.BorderPane;
 import org.kordamp.bootstrapfx.BootstrapFX;
 import org.kordamp.bootstrapfx.scene.layout.Panel;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -68,18 +70,10 @@ public class Main extends Application {
                 "linear-gradient(from 0% 100% to 100% 0%, #3f87a6, #ebf8e1, #f69d3c, #e66465)"
         );
 
-
         BorderPane content = new BorderPane();
 
         ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setStyle(".scroll-pane{\n" +
-                "   -fx-background-color:transparent;\n" +
-                "}\n" +
-                "\n" +
-                ".scroll-pane .viewport {\n" +
-                "       -fx-background-color: transparent;\n" +
-                "}");
-
+        scrollPane.getStylesheets().add(0 , "style.css");
 
         VBox vbox = new VBox();
         vbox.setPadding(new Insets(10, 10, 10, 10));
@@ -181,6 +175,20 @@ public class Main extends Application {
 
     public Slider sliderTrack() {
         Slider slider = new Slider(0, 100, 50);
+//        slider.setStyle("-fx-padding: 10 0 0 0");
+//        slider.setStyle(" -fx-background-color:\\n\" +\n" +
+//                "                \"          -fx-shadow-highlight-color,\\n\" +\n" +
+//                "                \"          linear-gradient(to bottom, derive(-fx-text-box-border, -10%), -fx-text-box-border),\\n\" +\n" +
+//                "                \"          linear-gradient(to bottom,\\n\" +\n" +
+//                "                \"            derive(-fx-control-inner-background, -9%),\\n\" +\n" +
+//                "                \"            derive(-fx-control-inner-background, 0%),\\n\" +\n" +
+//                "                \"            derive(-fx-control-inner-background, -5%),\\n\" +\n" +
+//                "                \"            derive(-fx-control-inner-background, -12%)\\n\" +\n" +
+//                "                \"          );\\n\" +\n" +
+//                "                \"    -fx-background-insets: 0 0 -1 0, 0, 1;\\n\" +\n" +
+//                "                \"    -fx-background-radius: 0.25em, 0.25em, 0.166667em; \\n\" +\n" +
+//                "                \"    -fx-padding: 0.25em;");
+        slider.getStylesheets().add(0 , "style.css");
         EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
