@@ -8,6 +8,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
@@ -25,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Main extends Application {
@@ -32,7 +34,7 @@ public class Main extends Application {
     //    public static String muss = "30112022Ig_2.mp3";
     public static String muss = "01. Don-t Blame Me (Split).mp3";
     public static String muss1 = "01. Butterfly (split).mp3";
-    public static String muss2 = "01. Don-t Blame Me (Split).mp3";
+    public static String muss2 = "30112022Ig_2.mp3";
     public static String muss3 = "John_Coltrane_-_Blue_Train_(-).mp3";
     private static Player player = new Player();
 
@@ -43,7 +45,11 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws FileNotFoundException {
-
+//        stage.setMinWidth(6000);
+//        stage.setMaxHeight(6000);
+//        stage.setWidth(1400);
+//        stage.setHeight(700);
+//        stage.setResizable(false);
         //by setting this property to true, the audio will be played
 //        mediaPlayer.setAutoPlay(true);
 //
@@ -65,8 +71,14 @@ public class Main extends Application {
 
         BorderPane content = new BorderPane();
 
-        BorderPane trackBox = new BorderPane();
-//        trackBox.setStyle("-fx-background-color: #ebf8e1");
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setStyle(".scroll-pane{\n" +
+                "   -fx-background-color:transparent;\n" +
+                "}\n" +
+                "\n" +
+                ".scroll-pane .viewport {\n" +
+                "       -fx-background-color: transparent;\n" +
+                "}");
 
 
         VBox vbox = new VBox();
@@ -75,32 +87,55 @@ public class Main extends Application {
 
         List<MusicFile> tracks = player.getPlaylist();
 
+
         for (int i = 0; i < tracks.size(); i++) {
-            ID3v1 id3v1Tag = tracks.get(i).getId3v1Tag();
+            Button currentTrack = new Button(String.valueOf(i));
+            int finalI = i;
+            EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent e) {
+                    player.stopMusic();
+                    Thread thread = new Thread(() -> {
+                        player.playList(finalI, -1);
+                    });
+                    thread.start();
+                }
+            };
+            currentTrack.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
+
             try {
+                ID3v1 id3v1Tag = tracks.get(i).getId3v1Tag();
                 HBox hBox = new HBox(
-                        new Text(String.valueOf(i)),
+                        currentTrack,
                         new Text("|"),
-                        new Text(id3v1Tag.getTitle()),
+                        new Text(Optional.ofNullable(id3v1Tag.getTitle()).orElse("   ")),
                         new Text("|"),
-                        new Text(id3v1Tag.getAlbum()),
+                        new Text(Optional.ofNullable(id3v1Tag.getAlbum()).orElse("   ")),
                         new Text("|"),
-                        new Text(id3v1Tag.getArtist()),
+                        new Text(Optional.ofNullable(id3v1Tag.getArtist()).orElse("   ")),
                         new Text("|"),
-                        new Text(id3v1Tag.getGenre() + " (" + id3v1Tag.getGenreDescription() + ")")
+                        new Text((Optional.ofNullable(id3v1Tag.getGenre()).orElse(-1)) + " (" + Optional.ofNullable(id3v1Tag.getGenreDescription()).orElse("   ") + ")")
                 );
                 hBox.setAlignment(Pos.BASELINE_LEFT);
                 hBox.setSpacing(6);
-//                hBox.setPadding(new Insets(3, 100, 3, 10));
                 vbox.getChildren().add(hBox);
             } catch (Exception e) {
-
+                HBox hBox = new HBox(
+                        currentTrack,
+                        new Text("|"),
+                        new Text(tracks.get(i).getPath())
+                );
+                hBox.setAlignment(Pos.BASELINE_LEFT);
+                hBox.setSpacing(6);
+                vbox.getChildren().add(hBox);
             }
         }
 
-        trackBox.setCenter(vbox);
+//        trackBox.setCenter(vbox);
 
-        content.setTop(trackBox);
+        scrollPane.setContent(vbox);
+        scrollPane.setMaxHeight(300);
+        content.setTop(scrollPane);
 
         HBox divVolume = new HBox();
         divVolume.getChildren().setAll(sliderTrack());
@@ -114,7 +149,7 @@ public class Main extends Application {
         Button playTrackButton = playTrack();
         div.setMaxHeight(playTrackButton.getHeight());
 
-        div.getChildren().addAll(new Button("1"), new Button("2"), new Button("3"), nextTrack(), playTrackButton, stopMusic(), divVolume);
+        div.getChildren().addAll(new Button("1"), new Button("2"), pauseMusic(), nextTrack(), playTrackButton, stopMusic(), divVolume);
         div.setPadding(new Insets(10, 10, 10, 10));
 
         dive.setBottom(sliderTrack());
@@ -137,7 +172,7 @@ public class Main extends Application {
             MusicFile musicFile1 = new MusicFile(muss1);
             MusicFile musicFile2 = new MusicFile(muss2);
             MusicFile musicFile3 = new MusicFile(muss3);
-            player.setPlaylist(List.of(musicFile, musicFile1, musicFile2, musicFile3));
+            player.setPlaylist(List.of(musicFile, musicFile1, musicFile2, musicFile3, musicFile, musicFile1, musicFile2, musicFile3, musicFile, musicFile1, musicFile2, musicFile3));
         } catch (IOException | UnsupportedTagException | InvalidDataException e) {
 
         }
@@ -169,8 +204,8 @@ public class Main extends Application {
             @Override
             public void handle(MouseEvent e) {
                 System.out.println("Play");
+//                player.stopMusic();
                 Thread thread = new Thread(() -> {
-                    player.stopMusic();
                     player.playList();
                 });
                 thread.start();
@@ -201,6 +236,20 @@ public class Main extends Application {
             public void handle(MouseEvent e) {
                 System.out.println("stop");
                 player.stopMusic();
+            }
+        };
+        button.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
+
+        return button;
+    }
+
+    public Button pauseMusic() {
+        Button button = new Button("pause");
+        EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent e) {
+                System.out.println("pause");
+                player.pauseMusic();
             }
         };
         button.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
