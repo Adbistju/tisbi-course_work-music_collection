@@ -20,8 +20,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.effect.BoxBlur;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.effect.Glow;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -67,6 +72,8 @@ public class Main extends Application {
 //    private static Media media = new Media(new File(muss1).toURI().toString());
 //    private static MediaPlayer mediaPlayer = new MediaPlayer(media);
 
+    Panel panel = new Panel("This is the title");
+
     @Override
     public void start(Stage stage) throws FileNotFoundException {
 //        stage.setMinWidth(6000);
@@ -87,7 +94,7 @@ public class Main extends Application {
 //        stage.show();
 
 
-        Panel panel = new Panel("This is the title");
+
         panel.setStyle(/*"-fx-background-color: " +
                 "linear-gradient(from 0% 100% to 100% 0%, #3f87a6, #ebf8e1, #f69d3c, #e66465)"*/
                 "-fx-background-color: transparent"
@@ -112,6 +119,7 @@ public class Main extends Application {
                 @Override
                 public void handle(MouseEvent e) {
                     player.stopMusic();
+                    panel.setText(player.getPlaylist().get(finalI).getPath());
                     Thread thread = new Thread(() -> {
                         player.playList(finalI, -1);
                     });
@@ -175,7 +183,7 @@ public class Main extends Application {
         panel.setBody(content);
 //        panel.setStyle("-fx-background-color: #3f87a6"/* +
 //                        "                linear-gradient(from 0% 100% to 100% 0%, #3f87a6, #ebf8e1, #f69d3c, #e66465)"*/);
-        panel.setStyle("-fx-background-color: rgba(56, 176, 209, 0.2)");
+        panel.setStyle("-fx-background-color: rgba(56, 176, 209, 0)");
         panel.setEffect(new BoxBlur(10,10 ,3 ));
 //        GaussianBlur glow = new GaussianBlur();
 
@@ -183,17 +191,28 @@ public class Main extends Application {
 
         background.setStyle("-fx-background-color: " +
                 "linear-gradient(from 0% 100% to 100% 0%, #3f87a6, #ebf8e1, #f69d3c, #e66465)");
-        background.setEffect(new GaussianBlur(1));
+        background.setStyle("-fx-background-image: url(Home.png)");
+        background.setBackground(
+                new Background(
+                        new BackgroundImage(
+                                new Image("Home.png"), BackgroundRepeat.SPACE, BackgroundRepeat.SPACE, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT
+                        )
+                )
+        );
+//        background.setEffect(new GaussianBlur(1));
 
         background.setBody(panel);
 
-        Scene scene = new Scene(background);
+        Scene scene = new Scene(background, 1400, 900, Color.TRANSPARENT);
 //        scene.getStylesheets().add("style.css");
         scene.getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());
 //        scene.setFill(Color.TRANSPARENT);
 //        stage.initStyle(StageStyle.TRANSPARENT);
         stage.setTitle("BootstrapFX");
         stage.setScene(scene);
+        stage.setResizable(true);
+        stage.setMaxHeight(900);
+        stage.setMaxWidth(1400);
 
         stage.sizeToScene();
         stage.show();
@@ -270,6 +289,7 @@ public class Main extends Application {
                 System.out.println("Play");
                 player.onStopMusic();
                 Thread thread = new Thread(() -> {
+                    panel.setText(player.getPlaylist().get(player.getIndexTrack() - 1).getPath());
                     player.playList();
                 });
                 thread.start();
@@ -285,6 +305,7 @@ public class Main extends Application {
             @Override
             public void handle(MouseEvent e) {
                 System.out.println("Next");
+                panel.setText(player.getPlaylist().get(player.getIndexTrack() - 1).getPath());
                 player.nextMusic();
             }
         };
@@ -300,6 +321,7 @@ public class Main extends Application {
             public void handle(MouseEvent e) {
                 player.stopMusic();
                 System.out.println("Previous");
+                panel.setText(player.getPlaylist().get(player.getIndexTrack() - 1).getPath());
                 Thread thread = new Thread(() -> {
                     player.playList(player.getIndexTrack() - 1, -1);
                 });
