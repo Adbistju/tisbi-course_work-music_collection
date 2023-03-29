@@ -7,6 +7,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.NamedArg;
 import javafx.beans.binding.Bindings;
 import javafx.event.EventHandler;
@@ -72,16 +73,10 @@ public class Main extends Application {
 //    private static Media media = new Media(new File(muss1).toURI().toString());
 //    private static MediaPlayer mediaPlayer = new MediaPlayer(media);
 
-    Panel panel = new Panel("This is the title");
+    Panel panel = new Panel("This is the title track");
 
     @Override
     public void start(Stage stage) throws FileNotFoundException {
-//        stage.setMinWidth(6000);
-//        stage.setMaxHeight(6000);
-//        stage.setWidth(1400);
-//        stage.setHeight(700);
-//        stage.setResizable(false);
-        //by setting this property to true, the audio will be played
 //        mediaPlayer.setAutoPlay(true);
 //
 //
@@ -208,6 +203,9 @@ public class Main extends Application {
         scene.getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());
 //        scene.setFill(Color.TRANSPARENT);
 //        stage.initStyle(StageStyle.TRANSPARENT);
+
+        Platform.setImplicitExit(false);
+
         stage.setTitle("BootstrapFX");
         stage.setScene(scene);
         stage.setResizable(true);
@@ -247,9 +245,10 @@ public class Main extends Application {
             @Override
             public void handle(MouseEvent e) {
                 count = (float) slider.getValue();
+                int a = player.getIndexTrack();
+                panel.setText(player.getPlaylist().get(a).getPath());
+                player.stopMusic();
                 Thread thread = new Thread(() -> {
-                    int a = player.getIndexTrack();
-                    player.stopMusic();
                     player.playList(a, (float) slider.getValue());
                 });
                 thread.start();
@@ -289,7 +288,7 @@ public class Main extends Application {
                 System.out.println("Play");
                 player.onStopMusic();
                 Thread thread = new Thread(() -> {
-                    panel.setText(player.getPlaylist().get(player.getIndexTrack() - 1).getPath());
+                    panel.setText(player.getPlaylist().get(player.getIndexTrack()).getPath());
                     player.playList();
                 });
                 thread.start();
@@ -305,7 +304,7 @@ public class Main extends Application {
             @Override
             public void handle(MouseEvent e) {
                 System.out.println("Next");
-                panel.setText(player.getPlaylist().get(player.getIndexTrack() - 1).getPath());
+                panel.setText(player.getPlaylist().get(player.getIndexTrack() + 1).getPath());
                 player.nextMusic();
             }
         };
