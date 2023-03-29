@@ -29,6 +29,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -75,7 +76,7 @@ public class Main extends Application {
         BorderPane content = new BorderPane();
 
         ScrollPane scrollPane = new ScrollPane();
-        scrollPane.getStylesheets().add(0 , "style.css");
+        scrollPane.getStylesheets().add(0, "style.css");
 
         VBox vbox = new VBox();
         vbox.setPadding(new Insets(10, 10, 10, 10));
@@ -127,7 +128,6 @@ public class Main extends Application {
             }
         }
 
-//        trackBox.setCenter(vbox);
 
         scrollPane.setContent(vbox);
         scrollPane.setMaxHeight(300);
@@ -177,26 +177,18 @@ public class Main extends Application {
 
     public Slider sliderTrack() {
         Slider slider = new Slider(0, 100, 50);
+        slider.getStylesheets().add(0, "style.css");
 
-//        slider.setStyle("-fx-padding: 10 0 0 0");
-//        slider.setStyle(" -fx-background-color:\\n\" +\n" +
-//                "                \"          -fx-shadow-highlight-color,\\n\" +\n" +
-//                "                \"          linear-gradient(to bottom, derive(-fx-text-box-border, -10%), -fx-text-box-border),\\n\" +\n" +
-//                "                \"          linear-gradient(to bottom,\\n\" +\n" +
-//                "                \"            derive(-fx-control-inner-background, -9%),\\n\" +\n" +
-//                "                \"            derive(-fx-control-inner-background, 0%),\\n\" +\n" +
-//                "                \"            derive(-fx-control-inner-background, -5%),\\n\" +\n" +
-//                "                \"            derive(-fx-control-inner-background, -12%)\\n\" +\n" +
-//                "                \"          );\\n\" +\n" +
-//                "                \"    -fx-background-insets: 0 0 -1 0, 0, 1;\\n\" +\n" +
-//                "                \"    -fx-background-radius: 0.25em, 0.25em, 0.166667em; \\n\" +\n" +
-//                "                \"    -fx-padding: 0.25em;");
-        slider.getStylesheets().add(0 , "style.css");
+        slider.styleProperty().bind(Bindings.createStringBinding(() -> {
+            double percentage = (slider.getValue() - slider.getMin()) / (slider.getMax() - slider.getMin()) * 100.0 ;
+            return String.format(Locale.US,"-slider-track-color: linear-gradient(to left, -slider-filled-track-color 0%%, "
+                            + "-slider-filled-track-color %f%%, -fx-base %f%%, -fx-base 100%%);",
+                    100-percentage, 100-percentage);
+        }, slider.valueProperty(), slider.minProperty(), slider.maxProperty()));
         EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
                 count = (float) slider.getValue();
-                slider.setValue(slider.getValue());
                 Thread thread = new Thread(() -> {
                     int a = player.getIndexTrack();
                     player.stopMusic();
@@ -248,7 +240,7 @@ public class Main extends Application {
                 player.stopMusic();
                 System.out.println("Previous");
                 Thread thread = new Thread(() -> {
-                    player.playList(player.getIndexTrack()-1, -1);
+                    player.playList(player.getIndexTrack() - 1, -1);
                 });
                 thread.start();
             }

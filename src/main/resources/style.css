@@ -17,7 +17,7 @@
 }
 /*Ширина ползунка*/
 .scroll-bar {
-    -fx-font-size: 1px;
+    -fx-font-size: 3px;
 }
 
 .scroll-bar:horizontal .track,
@@ -38,31 +38,34 @@
 .scroll-pane > .corner {
     -fx-background-color: black;
 }
-
+/*
 .slider {
     -fx-padding: 10 0 0 0;
-}
+    /*-slider-track-color: -slider-filled-track-color ;*/
+/*}
 
 .slider .track {
     -fx-background-color: white;
    /* -fx-border-width: 1px 1px 1px 1px;
     -fx-border-color: black;*/
-    -fx-background-insets: 0, 1, 2;
+/*    -fx-background-insets: 0, 1, 2;
     -fx-background-radius: 5, 4, 3;
+    -fx-background-color: -slider-track-color ;
 }
 
 .slider .thumb {
     -fx-background-color: #7268A7;
    /* -fx-border-radius: 50%;
     -fx-border-color: black;*/
-    -fx-background-image :url("pan.png");
-    -fx-padding: 1;
-}
+    /*-fx-background-image :url("point.png");*/
+/*    -fx-padding: 6;
+    /*-fx-background-color: -slider-filled-track-color ;*/
+/*}
 
-.slider .axis {
+/*.slider .axis {
     -fx-tick-label-fill: white;
     -fx-tick-mark-fill: white;
-}
+}*/
 
 /*.slider .axis .axis-tick-mark, .slider .axis .axis-minor-tick-mark {
     -fx-fill: null;
@@ -89,3 +92,18 @@
 /*---------------------------------*/
 /*---------------------------------*/
 /*---------------------------------*/
+
+.slider {
+    /* default track color: */
+    -slider-filled-track-color: #7268A7;
+    -slider-track-color: -slider-filled-track-color ;
+}
+
+/* Make thumb same color as filled part of track */
+.slider .thumb {
+    -fx-background-color: -slider-filled-track-color ;
+}
+
+.slider .track {
+    -fx-background-color: -slider-track-color ;
+}
