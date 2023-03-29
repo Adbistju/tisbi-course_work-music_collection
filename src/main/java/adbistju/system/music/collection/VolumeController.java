@@ -13,7 +13,7 @@ public class VolumeController {
 
     }
 
-    private void volumeControl(float percentLevel) {
+    public void volumeControl(float percentLevel) {
         Mixer.Info[] mixers = AudioSystem.getMixerInfo();
         for (Mixer.Info mixerInfo : mixers) {
             Mixer mixer = AudioSystem.getMixer(mixerInfo);

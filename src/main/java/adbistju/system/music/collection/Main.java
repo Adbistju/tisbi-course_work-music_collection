@@ -42,6 +42,7 @@ public class Main extends Application {
     public static String muss2 = "30112022Ig_2.mp3";
     public static String muss3 = "John_Coltrane_-_Blue_Train_(-).mp3";
     private static Player player = new Player();
+    private static VolumeController volumeController = new VolumeController();
 
     private static float count = 0;
 
@@ -134,7 +135,7 @@ public class Main extends Application {
         content.setTop(scrollPane);
 
         HBox divVolume = new HBox();
-        divVolume.getChildren().setAll(sliderTrack());
+        divVolume.getChildren().setAll(sliderVolume());
         divVolume.setAlignment(Pos.TOP_LEFT);
 
 
@@ -195,6 +196,28 @@ public class Main extends Application {
                     player.playList(a, (float) slider.getValue());
                 });
                 thread.start();
+            }
+        };
+        slider.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
+        return slider;
+    }
+
+    public Slider sliderVolume() {
+        Slider slider = new Slider(0, 100, 50);
+        slider.getStylesheets().add(0, "style.css");
+        volumeController.volumeControl(50);
+
+        slider.styleProperty().bind(Bindings.createStringBinding(() -> {
+            double percentage = (slider.getValue() - slider.getMin()) / (slider.getMax() - slider.getMin()) * 100.0 ;
+            return String.format(Locale.US,"-slider-track-color: linear-gradient(to right, -slider-filled-track-color 0%%, "
+                            + "-slider-filled-track-color %f%%, -fx-base %f%%, -fx-base 100%%);",
+                    percentage, percentage);
+        }, slider.valueProperty(), slider.minProperty(), slider.maxProperty()));
+        EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent e) {
+                count = (float) slider.getValue();
+                volumeController.volumeControl(count);
             }
         };
         slider.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
