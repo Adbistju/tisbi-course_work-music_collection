@@ -3,7 +3,11 @@ package adbistju.system.music.collection;
 import com.mpatric.mp3agic.ID3v1;
 import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.UnsupportedTagException;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.beans.NamedArg;
 import javafx.beans.binding.Bindings;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -13,17 +17,31 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.BoxBlur;
+import javafx.scene.effect.GaussianBlur;
+import javafx.scene.effect.Glow;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Paint;
+import javafx.scene.paint.Stop;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 
+import javafx.stage.StageStyle;
+import javafx.util.Duration;
 import org.kordamp.bootstrapfx.BootstrapFX;
 import org.kordamp.bootstrapfx.scene.layout.Panel;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -70,8 +88,9 @@ public class Main extends Application {
 
 
         Panel panel = new Panel("This is the title");
-        panel.setStyle("-fx-background-color: " +
-                "linear-gradient(from 0% 100% to 100% 0%, #3f87a6, #ebf8e1, #f69d3c, #e66465)"
+        panel.setStyle(/*"-fx-background-color: " +
+                "linear-gradient(from 0% 100% to 100% 0%, #3f87a6, #ebf8e1, #f69d3c, #e66465)"*/
+                "-fx-background-color: transparent"
         );
 
         BorderPane content = new BorderPane();
@@ -154,14 +173,33 @@ public class Main extends Application {
         content.setBottom(div);
 
         panel.setBody(content);
-        Scene scene = new Scene(panel);
+//        panel.setStyle("-fx-background-color: #3f87a6"/* +
+//                        "                linear-gradient(from 0% 100% to 100% 0%, #3f87a6, #ebf8e1, #f69d3c, #e66465)"*/);
+        panel.setStyle("-fx-background-color: rgba(56, 176, 209, 0.2)");
+        panel.setEffect(new BoxBlur(10,10 ,3 ));
+//        GaussianBlur glow = new GaussianBlur();
+
+        Panel background = new Panel();
+
+        background.setStyle("-fx-background-color: " +
+                "linear-gradient(from 0% 100% to 100% 0%, #3f87a6, #ebf8e1, #f69d3c, #e66465)");
+        background.setEffect(new GaussianBlur(1));
+
+        background.setBody(panel);
+
+        Scene scene = new Scene(background);
+//        scene.getStylesheets().add("style.css");
         scene.getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());
+//        scene.setFill(Color.TRANSPARENT);
+//        stage.initStyle(StageStyle.TRANSPARENT);
         stage.setTitle("BootstrapFX");
         stage.setScene(scene);
+
         stage.sizeToScene();
         stage.show();
 
     }
+    /** https://coderlessons.com/tutorials/java-tekhnologii/vyuchi-javafx/javafx-effekty */
 
     public static void main(String[] args) {
         try {
