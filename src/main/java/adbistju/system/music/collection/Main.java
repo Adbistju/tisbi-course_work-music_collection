@@ -100,6 +100,7 @@ public class Main extends Application {
         VBox vbox = new VBox();
         vbox.setPadding(new Insets(10, 10, 10, 10));
         vbox.setSpacing(10);
+//        vbox.setStyle("-fx-background-color: rgba(100, 100, 100, 0.5)");
 
         List<MusicFile> tracks = player.getPlaylist();
 
@@ -127,11 +128,19 @@ public class Main extends Application {
                         new Text("|"),
                         new Text(Optional.ofNullable(id3v1Tag.getTitle()).orElse("   ")),
                         new Text("|"),
+                        new Text(String.valueOf(tracks.get(i).getLengthInSeconds())),
+                        new Text("|"),
                         new Text(Optional.ofNullable(id3v1Tag.getAlbum()).orElse("   ")),
                         new Text("|"),
                         new Text(Optional.ofNullable(id3v1Tag.getArtist()).orElse("   ")),
                         new Text("|"),
-                        new Text((Optional.ofNullable(id3v1Tag.getGenre()).orElse(-1)) + " (" + Optional.ofNullable(id3v1Tag.getGenreDescription()).orElse("   ") + ")")
+                        new Text((Optional.ofNullable(id3v1Tag.getGenre()).orElse(-1)) + " (" + Optional.ofNullable(id3v1Tag.getGenreDescription()).orElse("   ") + ")"),
+                        new Text("----_----"),
+                        new Text("----_----"),
+                        new Text("----_----"),
+                        new Text("----_----"),
+                        new Text("----_----"),
+                        new Text("-----")
                 );
                 hBox.setAlignment(Pos.BASELINE_LEFT);
                 hBox.setSpacing(6);
@@ -140,7 +149,9 @@ public class Main extends Application {
                 HBox hBox = new HBox(
                         currentTrack,
                         new Text("|"),
-                        new Text(tracks.get(i).getPath())
+                        new Text(tracks.get(i).getPath()),
+                        new Text("|"),
+                        new Text(String.valueOf(tracks.get(i).getLengthInSeconds()))
                 );
                 hBox.setAlignment(Pos.BASELINE_LEFT);
                 hBox.setSpacing(6);
