@@ -90,10 +90,7 @@ public class Main extends Application {
 
 
 
-        panel.setStyle(/*"-fx-background-color: " +
-                "linear-gradient(from 0% 100% to 100% 0%, #3f87a6, #ebf8e1, #f69d3c, #e66465)"*/
-                "-fx-background-color: transparent"
-        );
+        panel.setStyle("-fx-background-color: transparent");
 
         BorderPane content = new BorderPane();
 
@@ -151,14 +148,13 @@ public class Main extends Application {
             }
         }
 
-
         scrollPane.setContent(vbox);
-        scrollPane.setMaxHeight(300);
-        content.setTop(scrollPane);
+        Panel scrollPanel = new Panel();
+        scrollPanel.setCenter(scrollPane);
 
         HBox divVolume = new HBox();
         divVolume.getChildren().setAll(sliderVolume());
-        divVolume.setAlignment(Pos.TOP_LEFT);
+        divVolume.setAlignment(Pos.CENTER);
 
 
         HBox div = new HBox();
@@ -172,37 +168,20 @@ public class Main extends Application {
         div.setPadding(new Insets(10, 10, 10, 10));
 
         dive.setBottom(sliderTrack());
-        content.setCenter(dive);
+        scrollPanel.setBottom(dive);
+        scrollPanel.setStyle("-fx-background-color: null");
+        content.setCenter(scrollPanel);
         content.setBottom(div);
 
         panel.setBody(content);
-//        panel.setStyle("-fx-background-color: #3f87a6"/* +
-//                        "                linear-gradient(from 0% 100% to 100% 0%, #3f87a6, #ebf8e1, #f69d3c, #e66465)"*/);
-        panel.setStyle("-fx-background-color: rgba(56, 176, 209, 0)");
-        panel.setEffect(new BoxBlur(10,10 ,3 ));
-//        GaussianBlur glow = new GaussianBlur();
 
         Panel background = new Panel();
 
-        background.setStyle("-fx-background-color: " +
-                "linear-gradient(from 0% 100% to 100% 0%, #3f87a6, #ebf8e1, #f69d3c, #e66465)");
         background.setStyle("-fx-background-image: url(Home.png)");
-        background.setBackground(
-                new Background(
-                        new BackgroundImage(
-                                new Image("Home.png"), BackgroundRepeat.SPACE, BackgroundRepeat.SPACE, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT
-                        )
-                )
-        );
-//        background.setEffect(new GaussianBlur(1));
 
         background.setBody(panel);
-
-        Scene scene = new Scene(background, 1400, 900, Color.TRANSPARENT);
-//        scene.getStylesheets().add("style.css");
+        Scene scene = new Scene(background, stage.getWidth(), stage.getHeight(), Color.TRANSPARENT);
         scene.getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());
-//        scene.setFill(Color.TRANSPARENT);
-//        stage.initStyle(StageStyle.TRANSPARENT);
 
         Platform.setImplicitExit(false);
 
