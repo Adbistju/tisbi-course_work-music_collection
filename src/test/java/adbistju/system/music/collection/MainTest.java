@@ -37,77 +37,13 @@ public class MainTest {
         System.out.println(mp3file.getStartOffset());
         System.out.println(mp3file.getLayer());
     }
-
-    public static void main(String[] args) throws InvalidDataException, UnsupportedTagException, IOException {
-        MusicFile musicFile = new MusicFile(muss);
-        MusicFile musicFile1 = new MusicFile(muss1);
-        MusicFile musicFile2 = new MusicFile(muss2);
-        MusicFile musicFile3 = new MusicFile(muss3);
-
-        Thread thread = new Thread(() -> {
-            int a;
-            float b;
-            while (true) {
-                a = scanner.nextInt();
-                if (a == 0) {
-                    player.pauseMusic();
-                } else if (a == 1) {
-                    player.nextMusic();
-                } else if (a == 2) {
-                    player.playList();
-                } else if (a == 3) {
-                    player.stopMusic();
-                } else if (a == 4) {
-                    a = scanner.nextInt();
-                    player.stopMusic();
-                    player.playList(a, 0);
-                } else if (a == 5) {
-                    System.out.println("number track:");
-                    a = scanner.nextInt();
-                    System.out.println("percent track:");
-                    b = scanner.nextFloat();
-                    player.stopMusic();
-                    player.playList(a, b);
-                }
-            }
-        });
-
-        thread.start();
-
-        player.setPlaylist(List.of(musicFile, musicFile1, musicFile2, musicFile3));
-        player.playList(player.getIndexTrack(), 0);
-    }
-
+    
     @Test
     public void playPlayListTest() throws InvalidDataException, UnsupportedTagException, IOException {
         MusicFile musicFile = new MusicFile(muss);
         MusicFile musicFile1 = new MusicFile(muss1);
         player.setPlaylist(List.of(musicFile, musicFile1));
         player.playList();
-    }
-
-    @Test
-    public void playCurrentTrackPercentSkipTest() throws InvalidDataException, UnsupportedTagException, IOException {
-        MusicFile musicFile = new MusicFile(muss);
-        Player player = new Player();
-        player.playTrack(
-                musicFile,
-                0,
-                TrackUtils.convertPercentToFrame(musicFile,53.1f),
-                TrackUtils.convertPercentToFrame(musicFile,55.5f)
-        );
-    }
-
-    @Test
-    public void playMusic() {
-        Thread thread = new Thread(() -> {
-            int g = 0;
-            while (true) {
-                g = scanner.nextInt();
-//                volumeControl(g);
-            }
-        });
-        thread.start();
     }
 
 }

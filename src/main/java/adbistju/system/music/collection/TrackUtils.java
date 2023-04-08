@@ -8,8 +8,8 @@ public class TrackUtils {
      * @param percent процент фреймов от файла
      * @return фреймы
      */
-    public static int convertPercentToFrame(MusicFile musicFile, float percent) {
-        long a = (musicFile.getFrameCount() / 100);
+    public static int convertPercentToFrame(MusicFile musicFile, double percent) {
+        long a = (musicFile.getLengthInMilliseconds() / 100);
         int position = Math.toIntExact((long) (a * percent));
         return position;
     }

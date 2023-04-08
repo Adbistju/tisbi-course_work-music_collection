@@ -1,15 +1,10 @@
 package adbistju.system.music.collection;
 
-import javazoom.jl.decoder.JavaLayerException;
-import javazoom.jl.player.AudioDevice;
-import javazoom.jl.player.JavaSoundAudioDevice;
-import javazoom.jl.player.advanced.AdvancedPlayer;
-import javazoom.jl.player.advanced.PlaybackEvent;
-import javazoom.jl.player.advanced.PlaybackListener;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.util.Duration;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,21 +13,20 @@ public class Player {
 
     private static final int DEFAULT_POSITION = 0;
     private static final int END_VALUE = -1;
-    
-    private final PlaybackTrackStateListener infoListenerTest;
 
-    private AdvancedPlayer player;
+    private Media media;
+    private MediaPlayer player;
+
     private List<MusicFile> playlist;
     private AtomicInteger indexTrack;
-    private AtomicBoolean nextPlay;
+        private AtomicBoolean retry;
     private AtomicInteger positionTrack;
     private AtomicBoolean pausePlay;
 
     public Player() {
         this.indexTrack = new AtomicInteger(DEFAULT_POSITION);
-        this.nextPlay = new AtomicBoolean(true);
+        this.retry = new AtomicBoolean(false);
         this.positionTrack = new AtomicInteger(DEFAULT_POSITION);
-        this.infoListenerTest = new PlaybackTrackStateListener();
         this.pausePlay = new AtomicBoolean(false);
     }
 
@@ -40,50 +34,51 @@ public class Player {
         playList(indexTrack.get(), END_VALUE);
     }
 
-    public void playList(int indexTrack, float percentPosition) {
-        if (!pausePlay.get()) {
-            stopMusic();
+    public void playList(int indexTrack, double percentPosition) {
+
+        if (player != null) {
+            if (player.getStatus() == MediaPlayer.Status.PLAYING) {
+                stopMusic();
+            }
+            if (player.getStatus() == MediaPlayer.Status.PAUSED) {
+                player.play();
+                return;
+            }
+        }
+
+        if (player != null) {
+            player.dispose();
         }
 
         pausePlay.set(false);
-        nextPlay.set(true);
-
         MusicFile currentFile = playlist.get(indexTrack);
-
         if (percentPosition >= DEFAULT_POSITION) {
             positionTrack.set(TrackUtils.convertPercentToFrame(currentFile, percentPosition));
         }
 
-        for (int i = indexTrack; i < playlist.size(); i++) {
-            if (!nextPlay.get()) {
-                return;
-            }
-
-            playTrack(playlist.get(i), i, positionTrack.get(), END_VALUE);
+        PlayCommand nextTracks = null;
+        TrackList trackList = new TrackList();
+        if (retry.get()) {
+            nextTracks = trackList.toTrackListRepeat(indexTrack, playlist, this);
+        } else {
+            nextTracks = trackList.toTrackListNoRepeat(indexTrack, playlist, this);
         }
+
+        playTrack(playlist.get(indexTrack), nextTracks, indexTrack, Duration.millis(positionTrack.get()), Duration.millis(currentFile.getLengthInMilliseconds()));
+
+//        playTrack(playlist.get(indexTrack), indexTrack, Duration.millis(currentFile.getLengthInMilliseconds()/2), Duration.millis(currentFile.getLengthInMilliseconds()/2+1500));
 
     }
 
-    public void playTrack(MusicFile currentTrack, int indexTrack, int position, int endPosition) {
-
+    public void playTrack(MusicFile currentTrack, PlayCommand prev, int indexTrack, Duration position, Duration endPosition) {
         this.indexTrack.set(indexTrack);
         this.positionTrack.set(DEFAULT_POSITION);
-
-        AudioDevice auDev = new JavaSoundAudioDevice();
-        try {
-            InputStream musicStream = new FileInputStream(currentTrack.getPath());
-            player = new AdvancedPlayer(musicStream, auDev);
-            player.setPlayBackListener(infoListenerTest);
-            player.play(position, endPosition < DEFAULT_POSITION ? currentTrack.getFrameCount() : endPosition);
-            musicStream.close();
-            player.close();
-        } catch (JavaLayerException | IOException e) {
-
-        } finally {
-            if (auDev.isOpen()) {
-                auDev.close();
-            }
-        }
+        media = new Media(new File(currentTrack.getPath()).toURI().toString());
+        player = new MediaPlayer(media);
+        player.setStartTime(position);
+        player.setStopTime(endPosition);
+        player.setOnEndOfMedia(prev);
+        player.play();
     }
 
     public List<MusicFile> getPlaylist() {
@@ -96,11 +91,11 @@ public class Player {
 
     public void stopMusic() {
         pausePlay.set(false);
-        nextPlay.set(false);
         indexTrack.set(DEFAULT_POSITION);
         positionTrack.set(DEFAULT_POSITION);
-        
+
         if (player != null) {
+            System.out.println("stop");
             try {
                 player.stop();
             } catch (Exception e) {
@@ -110,48 +105,91 @@ public class Player {
     }
 
     public void pauseMusic() {
-        pausePlay.set(true);
-        nextPlay.set(false);
-        
-        if (player != null) {
-            player.stop();
-        }
+        player.pause();
     }
 
     public void nextMusic() {
+        indexTrack.set(getNewIndex(true));
         if (player != null) {
             player.stop();
-            nextPlay.set(true);
-            positionTrack.set(DEFAULT_POSITION);
         }
+        playList(indexTrack.get(), -1);
+    }
+
+    private int getNewIndex(boolean increment) {
+        int currentIndex = indexTrack.get();
+        System.out.println("currentIndex " + currentIndex + " increment " + increment);
+        if (currentIndex + 1 >= playlist.size() && increment) {
+            currentIndex = currentIndex - playlist.size() + 1;
+        } else if (increment) {
+            currentIndex = currentIndex + 1;
+        } else if (currentIndex - 1 < 0 && !increment) {
+            currentIndex = currentIndex + playlist.size() - 1;
+        } else if (!increment) {
+            currentIndex = currentIndex - 1;
+        }
+        System.out.println(currentIndex);
+        return currentIndex;
     }
 
     public int getIndexTrack() {
         return indexTrack.get();
     }
 
-    public void onStopMusic() {
-        if (player != null) {
-            try {
-                player.stop();
-            } catch (Exception e) {
-
-            }
-        }
+    public Duration getCurrentTime() {
+        return player.getCurrentTime();
     }
 
-    public class PlaybackTrackStateListener extends PlaybackListener {
-        public PlaybackTrackStateListener() {
+    public MediaPlayer getTrack() {
+        return player;
+    }
 
+    public void previousTrack() {
+        indexTrack.set(getNewIndex(false));
+        if (player != null) {
+            player.stop();
         }
+        playList(indexTrack.get(), -1);
+    }
 
-        public void playbackStarted(PlaybackEvent evt) {
-
+    public void rewind(double value) {
+        if (player != null) {
+            double v = player.getMedia().getDuration().toMillis() / 100 * value;
+            if (player.getStatus() == MediaPlayer.Status.PLAYING) {
+                player.stop();
+            }
+            player.setStartTime(Duration.millis(v));
+            player.play();
+            return;
         }
+        playList(indexTrack.get(), value);
+    }
 
-        public void playbackFinished(PlaybackEvent evt) {
-            int frame = evt.getFrame();/* / 25;//25 попугаев*/
-            positionTrack.set(frame);
+    public void setMedia(Media media) {
+        this.media = media;
+    }
+
+    public void setPlayer(MediaPlayer player) {
+        this.player = player;
+    }
+
+    public void incrementIndex(int indexTrack) {
+        this.indexTrack.set(indexTrack);
+    }
+
+    public boolean retry() {
+        if (retry.get()) {
+            retry.set(false);
+        } else if (!retry.get()) {
+            retry.set(true);
         }
+        return retry.get();
+    }
+
+    public MediaPlayer.Status getStatus() {
+        if (player == null) {
+            return MediaPlayer.Status.UNKNOWN;
+        }
+        return player.getStatus();
     }
 }

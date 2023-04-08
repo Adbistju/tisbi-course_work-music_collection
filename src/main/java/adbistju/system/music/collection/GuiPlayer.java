@@ -3,64 +3,37 @@ package adbistju.system.music.collection;
 import com.mpatric.mp3agic.ID3v1;
 import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.UnsupportedTagException;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.NamedArg;
 import javafx.beans.binding.Bindings;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
-import javafx.scene.effect.BoxBlur;
-import javafx.scene.effect.GaussianBlur;
-import javafx.scene.effect.Glow;
-import javafx.scene.image.Image;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.BackgroundPosition;
-import javafx.scene.layout.BackgroundRepeat;
-import javafx.scene.layout.BackgroundSize;
-import javafx.scene.layout.CornerRadii;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.Paint;
-import javafx.scene.paint.Stop;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.scene.control.Button;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
-
-import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import org.kordamp.bootstrapfx.BootstrapFX;
 import org.kordamp.bootstrapfx.scene.layout.Panel;
 
-import java.awt.*;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-public class Main extends Application {
+import static javafx.scene.media.MediaPlayer.Status.PLAYING;
 
-    //    public static String muss = "30112022Ig_2.mp3";
+public class GuiPlayer extends Application {
+
     public static String muss = "01. Don-t Blame Me (Split).mp3";
     public static String muss1 = "01. Butterfly (split).mp3";
     public static String muss2 = "30112022Ig_2.mp3";
@@ -70,41 +43,45 @@ public class Main extends Application {
 
     private static float count = 0;
 
-//    private static Media media = new Media(new File(muss1).toURI().toString());
-//    private static MediaPlayer mediaPlayer = new MediaPlayer(media);
-
     Panel panel = new Panel("This is the title track");
 
     @Override
-    public void start(Stage stage) throws FileNotFoundException {
-//        mediaPlayer.setAutoPlay(true);
-//
-//
-//            MusicFile musicFile = new MusicFile(muss1);
-//
-//            mediaPlayer.setStartTime(Duration.millis(musicFile.getLengthInMilliseconds()/2));
-//        mediaPlayer.play();
-//        mediaPlayer.currentTimeProperty().get();
-//        stage.setTitle("Playing Audio");
-//        stage.show();
-
-
-
+    public void start(Stage stage) throws IOException, InvalidDataException, UnsupportedTagException {
         panel.setStyle("-fx-background-color: transparent");
-
         BorderPane content = new BorderPane();
+        VBox vbox = vbox();
+        List<MusicFile> tracks = player.getPlaylist();
+        track(vbox, tracks);
+        HBox div = div(playTrack(), divVolume());
+        BorderPane dive = new BorderPane();
+        Slider sliderTrack = sliderTrack();
+        dive.setBottom(sliderTrack);
+        content.setCenter(scrollPane(vbox, dive));
+        content.setBottom(div);
+        panel.setBody(content);
+        Panel background = background();
+        background.setBody(panel);
+        Scene scene = scene(stage, background);
+        Platform.setImplicitExit(false);
+        stage.setTitle("BootstrapFX");
+        stage.setScene(scene);
+        stage.setResizable(true);
+        stage.setMaxHeight(900);
+        stage.setMaxWidth(1400);
+        stage.setMinHeight(500);
+        stage.setMinWidth(800);
+        stage.sizeToScene();
+        stage.show();
+    }
 
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.getStylesheets().add(0, "style.css");
-
+    public VBox vbox() {
         VBox vbox = new VBox();
         vbox.setPadding(new Insets(10, 10, 10, 10));
         vbox.setSpacing(10);
-//        vbox.setStyle("-fx-background-color: rgba(100, 100, 100, 0.5)");
+        return vbox;
+    }
 
-        List<MusicFile> tracks = player.getPlaylist();
-
-
+    public VBox track(VBox vbox, List<MusicFile> tracks) {
         for (int i = 0; i < tracks.size(); i++) {
             Button currentTrack = new Button(String.valueOf(i));
             int finalI = i;
@@ -158,59 +135,52 @@ public class Main extends Application {
                 vbox.getChildren().add(hBox);
             }
         }
+        return vbox;
+    }
 
+    public Panel scrollPane(VBox vbox, BorderPane dive) {
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.getStylesheets().add(0, "style.css");
         scrollPane.setContent(vbox);
         Panel scrollPanel = new Panel();
         scrollPanel.setCenter(scrollPane);
+        scrollPanel.setBottom(dive);
+        scrollPanel.setStyle("-fx-background-color: null");
+        return scrollPanel;
+    }
 
+    public HBox divVolume() {
         HBox divVolume = new HBox();
         divVolume.getChildren().setAll(sliderVolume());
         divVolume.setAlignment(Pos.CENTER);
+        return divVolume;
+    }
 
-
+    public HBox div(Button playTrackButton, HBox divVolume) {
         HBox div = new HBox();
         div.setSpacing(20);
         div.setAlignment(Pos.BASELINE_CENTER);
-        BorderPane dive = new BorderPane();
-        Button playTrackButton = playTrack();
         div.setMaxHeight(playTrackButton.getHeight());
-
-        div.getChildren().addAll(new Button("1"), prevTrack(), pauseMusic(), nextTrack(), playTrackButton, stopMusic(), divVolume);
+        div.getChildren().addAll(retry(), prevTrack(), pauseMusic(), nextTrack(), playTrackButton, stopMusic(), divVolume);
         div.setPadding(new Insets(10, 10, 10, 10));
+        return div;
+    }
 
-        dive.setBottom(sliderTrack());
-        scrollPanel.setBottom(dive);
-        scrollPanel.setStyle("-fx-background-color: null");
-        content.setCenter(scrollPanel);
-        content.setBottom(div);
-
-        panel.setBody(content);
-
+    public Panel background() {
         Panel background = new Panel();
-
         background.setStyle("-fx-background-image: url(Home.png)");
+        return background;
+    }
 
-        background.setBody(panel);
+    public Scene scene(Stage stage, Panel background) {
         Scene scene = new Scene(background, stage.getWidth(), stage.getHeight(), Color.TRANSPARENT);
         scene.getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());
-
-        Platform.setImplicitExit(false);
-
-        stage.setTitle("BootstrapFX");
-        stage.setScene(scene);
-        stage.setResizable(true);
-        stage.setMaxHeight(900);
-        stage.setMaxWidth(1400);
-        stage.setMinHeight(500);
-        stage.setMinWidth(800);
-
-
-
-        stage.sizeToScene();
-        stage.show();
-
+        return scene;
     }
-    /** https://coderlessons.com/tutorials/java-tekhnologii/vyuchi-javafx/javafx-effekty */
+
+    /**
+     * https://coderlessons.com/tutorials/java-tekhnologii/vyuchi-javafx/javafx-effekty
+     */
 
     public static void main(String[] args) {
         try {
@@ -218,7 +188,7 @@ public class Main extends Application {
             MusicFile musicFile1 = new MusicFile(muss1);
             MusicFile musicFile2 = new MusicFile(muss2);
             MusicFile musicFile3 = new MusicFile(muss3);
-            player.setPlaylist(List.of(musicFile, musicFile1, musicFile2, musicFile3, musicFile, musicFile1, musicFile2, musicFile3, musicFile, musicFile1, musicFile2, musicFile3));
+            player.setPlaylist(List.of(musicFile, musicFile1, musicFile2, musicFile3/*, /*musicFile, musicFile1, musicFile2, musicFile3, musicFile, musicFile1, musicFile2, musicFile3*/));
         } catch (IOException | UnsupportedTagException | InvalidDataException e) {
 
         }
@@ -230,27 +200,47 @@ public class Main extends Application {
         slider.getStylesheets().add(0, "style.css");
 
         slider.styleProperty().bind(Bindings.createStringBinding(() -> {
-            double percentage = (slider.getValue() - slider.getMin()) / (slider.getMax() - slider.getMin()) * 100.0 ;
-            return String.format(Locale.US,"-slider-track-color: linear-gradient(to left, -slider-filled-track-color 0%%, "
+            double percentage = (slider.getValue() - slider.getMin()) / (slider.getMax() - slider.getMin()) * 100.0;
+            return String.format(Locale.US, "-slider-track-color: linear-gradient(to left, -slider-filled-track-color 0%%, "
                             + "-slider-filled-track-color %f%%, -fx-base %f%%, -fx-base 100%%);",
-                    100-percentage, 100-percentage);
+                    100 - percentage, 100 - percentage);
         }, slider.valueProperty(), slider.minProperty(), slider.maxProperty()));
+
         EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
-                count = (float) slider.getValue();
-                int a = player.getIndexTrack();
-                panel.setText(player.getPlaylist().get(a).getPath());
-                player.stopMusic();
-                Thread thread = new Thread(() -> {
-                    player.playList(a, (float) slider.getValue());
-                });
-                thread.start();
+                player.rewind(slider.getValue());
+                clickSlider.set(false);
             }
         };
         slider.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
+
+        EventHandler<MouseEvent> pressed = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent e) {
+                clickSlider.set(true);
+            }
+        };
+        slider.addEventFilter(MouseEvent.MOUSE_PRESSED, pressed);
+
+        //todo вынести в планировщик задач.
+        Thread thread = new Thread(() -> {
+            long time = System.currentTimeMillis();
+            long delta = 50;
+            while (true) {
+                if ((time + delta) - System.currentTimeMillis() <= 0) {
+                    time = System.currentTimeMillis();
+                    if (player.getStatus() == PLAYING && !clickSlider.get()) {
+                        slider.setValue(player.getCurrentTime().toMillis() / player.getTrack().getMedia().getDuration().toMillis() * 100);
+                    }
+                }
+            }
+        });
+        thread.start();
         return slider;
     }
+
+    private AtomicBoolean clickSlider = new AtomicBoolean(false);
 
     public Slider sliderVolume() {
         Slider slider = new Slider(0, 100, 50);
@@ -258,8 +248,8 @@ public class Main extends Application {
         volumeController.volumeControl(50);
 
         slider.styleProperty().bind(Bindings.createStringBinding(() -> {
-            double percentage = (slider.getValue() - slider.getMin()) / (slider.getMax() - slider.getMin()) * 100.0 ;
-            return String.format(Locale.US,"-slider-track-color: linear-gradient(to right, -slider-filled-track-color 0%%, "
+            double percentage = (slider.getValue() - slider.getMin()) / (slider.getMax() - slider.getMin()) * 100.0;
+            return String.format(Locale.US, "-slider-track-color: linear-gradient(to right, -slider-filled-track-color 0%%, "
                             + "-slider-filled-track-color %f%%, -fx-base %f%%, -fx-base 100%%);",
                     percentage, percentage);
         }, slider.valueProperty(), slider.minProperty(), slider.maxProperty()));
@@ -279,13 +269,8 @@ public class Main extends Application {
         EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
-                System.out.println("Play");
-                player.onStopMusic();
-                Thread thread = new Thread(() -> {
-                    panel.setText(player.getPlaylist().get(player.getIndexTrack()).getPath());
-                    player.playList();
-                });
-                thread.start();
+                panel.setText(player.getPlaylist().get(player.getIndexTrack()).getPath());
+                player.playList();
             }
         };
         buttonIco.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
@@ -297,13 +282,10 @@ public class Main extends Application {
         EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
-                System.out.println("Next");
-                panel.setText(player.getPlaylist().get(player.getIndexTrack() + 1).getPath());
                 player.nextMusic();
             }
         };
         button.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
-//        button.getStyleClass().setAll("btn", "btn-danger");
         return button;
     }
 
@@ -312,13 +294,19 @@ public class Main extends Application {
         EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
-                player.stopMusic();
-                System.out.println("Previous");
-                panel.setText(player.getPlaylist().get(player.getIndexTrack() - 1).getPath());
-                Thread thread = new Thread(() -> {
-                    player.playList(player.getIndexTrack() - 1, -1);
-                });
-                thread.start();
+                player.previousTrack();
+            }
+        };
+        button.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
+        return button;
+    }
+
+    public Button retry() {
+        Button button = new Button("retry");
+        EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent e) {
+                player.retry();
             }
         };
         button.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
@@ -330,8 +318,8 @@ public class Main extends Application {
         EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
-                System.out.println("stop");
-                player.stopMusic();
+                player.getTrack().setStartTime(Duration.ZERO);
+                player.getTrack().stop();
             }
         };
         button.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
@@ -345,7 +333,7 @@ public class Main extends Application {
             @Override
             public void handle(MouseEvent e) {
                 System.out.println("pause");
-                player.pauseMusic();
+                player.getTrack().pause();
             }
         };
         button.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
