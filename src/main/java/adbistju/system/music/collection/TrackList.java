@@ -23,10 +23,10 @@ public class TrackList {
      */
     public Node toTrackListRepeat(int indexTrack, List<MusicFile> playlist, Player player) {
         for (int i = indexTrack + 1; i < playlist.size(); i++) {
-            insertAfterRepeat(null, new MediaPlayer(new Media(new File(playlist.get(i).getPath()).toURI().toString())), indexTrack, player);
+            insertAfterRepeat(null, playlist.get(i).getPath(), new MediaPlayer(new Media(new File(playlist.get(i).getPath()).toURI().toString())), indexTrack, player);
         }
         for (int i = 0; i <= indexTrack; i++) {
-            insertAfterRepeat(null, new MediaPlayer(new Media(new File(playlist.get(i).getPath()).toURI().toString())), indexTrack, player);
+            insertAfterRepeat(null, playlist.get(i).getPath(), new MediaPlayer(new Media(new File(playlist.get(i).getPath()).toURI().toString())), indexTrack, player);
         }
         return firstElement;
     }
@@ -36,13 +36,13 @@ public class TrackList {
      */
     public Node toTrackListNoRepeat(int indexTrack, List<MusicFile> playlist, Player player) {
         for (int i = indexTrack + 1; i < playlist.size(); i++) {
-            insertAfterNoRepeat(null, new MediaPlayer(new Media(new File(playlist.get(i).getPath()).toURI().toString())), indexTrack, player);
+            insertAfterNoRepeat(null, playlist.get(i).getPath(), new MediaPlayer(new Media(new File(playlist.get(i).getPath()).toURI().toString())), indexTrack, player);
         }
         return firstElement;
     }
 
-    private void insertAfterNoRepeat(PlayCommand nextPlay, MediaPlayer player, int indexTrack, Player controlPlayer) {
-        Node newItem = new Node(nextPlay, player, indexTrack, controlPlayer);
+    private void insertAfterNoRepeat(PlayCommand nextPlay, String path, MediaPlayer player, int indexTrack, Player controlPlayer) {
+        Node newItem = new Node(nextPlay, path, player, indexTrack, controlPlayer);
         if (firstElement == null) {
             firstElement = newItem;
             current = firstElement;
@@ -53,8 +53,8 @@ public class TrackList {
     }
 
 
-    private void insertAfterRepeat(PlayCommand nextPlay, MediaPlayer player, int indexTrack, Player controlPlayer) {
-        Node newItem = new Node(nextPlay, player, indexTrack, controlPlayer);
+    private void insertAfterRepeat(PlayCommand nextPlay, String path, MediaPlayer player, int indexTrack, Player controlPlayer) {
+        Node newItem = new Node(nextPlay, path, player, indexTrack, controlPlayer);
         if (firstElement == null) {
             firstElement = newItem;
             current = firstElement;
@@ -67,12 +67,12 @@ public class TrackList {
 
     class Node extends PlayCommand {
 
-        public Node(PlayCommand nextPlay, MediaPlayer player, int indexTrack, Player controlPlayer) {
-            super(nextPlay, player, indexTrack, controlPlayer);
+        public Node(PlayCommand nextPlay, String path, MediaPlayer player, int indexTrack, Player controlPlayer) {
+            super(nextPlay, path, player, indexTrack, controlPlayer);
         }
 
-        public Node(PlayCommand nextPlay, MediaPlayer player, int indexTrack, Duration startPosition, Duration endPosition, Player controlPlayer) {
-            super(nextPlay, player, indexTrack, startPosition, endPosition, controlPlayer);
+        public Node(PlayCommand nextPlay, String path, MediaPlayer player, int indexTrack, Duration startPosition, Duration endPosition, Player controlPlayer) {
+            super(nextPlay, path, player, indexTrack, startPosition, endPosition, controlPlayer);
         }
 
     }

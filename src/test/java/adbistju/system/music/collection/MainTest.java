@@ -18,7 +18,7 @@ public class MainTest {
     public static String muss3 = "John_Coltrane_-_Blue_Train_(-).mp3";
 
     private static Scanner scanner = new Scanner(System.in);
-    private static Player player = new Player();
+    private static Player player = new Player(null);
 
     @Test
     public void getDataFileTest() throws InvalidDataException, UnsupportedTagException, IOException {

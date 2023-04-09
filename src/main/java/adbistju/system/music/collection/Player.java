@@ -1,8 +1,10 @@
 package adbistju.system.music.collection;
 
+import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
+import org.kordamp.bootstrapfx.scene.layout.Panel;
 
 import java.io.File;
 import java.util.List;
@@ -14,20 +16,23 @@ public class Player {
     private static final int DEFAULT_POSITION = 0;
     private static final int END_VALUE = -1;
 
+    private Panel panel;
+
     private Media media;
     private MediaPlayer player;
 
     private List<MusicFile> playlist;
     private AtomicInteger indexTrack;
-        private AtomicBoolean retry;
+    private AtomicBoolean retry;
     private AtomicInteger positionTrack;
     private AtomicBoolean pausePlay;
 
-    public Player() {
+    public Player(Panel panel) {
         this.indexTrack = new AtomicInteger(DEFAULT_POSITION);
         this.retry = new AtomicBoolean(false);
         this.positionTrack = new AtomicInteger(DEFAULT_POSITION);
         this.pausePlay = new AtomicBoolean(false);
+        this.panel = panel;
     }
 
     public void playList() {
@@ -74,11 +79,18 @@ public class Player {
         this.indexTrack.set(indexTrack);
         this.positionTrack.set(DEFAULT_POSITION);
         media = new Media(new File(currentTrack.getPath()).toURI().toString());
+
+        setTextCurrentTrack(currentTrack.getPath());
+
         player = new MediaPlayer(media);
         player.setStartTime(position);
         player.setStopTime(endPosition);
         player.setOnEndOfMedia(prev);
         player.play();
+    }
+
+    public void setTextCurrentTrack(String currentTrack) {
+        panel.setText(currentTrack);
     }
 
     public List<MusicFile> getPlaylist() {
@@ -95,7 +107,6 @@ public class Player {
         positionTrack.set(DEFAULT_POSITION);
 
         if (player != null) {
-            System.out.println("stop");
             try {
                 player.stop();
             } catch (Exception e) {
@@ -105,7 +116,9 @@ public class Player {
     }
 
     public void pauseMusic() {
-        player.pause();
+        if (player != null) {
+            player.pause();
+        }
     }
 
     public void nextMusic() {
@@ -118,17 +131,15 @@ public class Player {
 
     private int getNewIndex(boolean increment) {
         int currentIndex = indexTrack.get();
-        System.out.println("currentIndex " + currentIndex + " increment " + increment);
         if (currentIndex + 1 >= playlist.size() && increment) {
             currentIndex = currentIndex - playlist.size() + 1;
         } else if (increment) {
             currentIndex = currentIndex + 1;
-        } else if (currentIndex - 1 < 0 && !increment) {
+        } else if (currentIndex - 1 < 0) {
             currentIndex = currentIndex + playlist.size() - 1;
-        } else if (!increment) {
+        } else {
             currentIndex = currentIndex - 1;
         }
-        System.out.println(currentIndex);
         return currentIndex;
     }
 
@@ -186,10 +197,18 @@ public class Player {
         return retry.get();
     }
 
+    public boolean getRetry() {
+        return retry.get();
+    }
+
     public MediaPlayer.Status getStatus() {
         if (player == null) {
             return MediaPlayer.Status.UNKNOWN;
         }
         return player.getStatus();
+    }
+
+    public void setIndexTrack(int indexTrack) {
+        this.indexTrack.set(indexTrack);
     }
 }

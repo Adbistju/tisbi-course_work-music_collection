@@ -14,9 +14,11 @@ public class PlayCommand implements Runnable {
     private Duration startPosition;
     private Duration endPosition;
     private int indexTrack;
+    private String path;
 
-    public PlayCommand(PlayCommand nextPlay, MediaPlayer player, int indexTrack, Duration startPosition, Duration endPosition, Player controlPlayer) {
+    public PlayCommand(PlayCommand nextPlay, String path, MediaPlayer player, int indexTrack, Duration startPosition, Duration endPosition, Player controlPlayer) {
         this.nextPlay = nextPlay;
+        this.path = path;
         this.player = player;
         this.startPosition = startPosition;
         this.endPosition = endPosition;
@@ -24,8 +26,9 @@ public class PlayCommand implements Runnable {
         this.indexTrack = indexTrack;
     }
 
-    public PlayCommand(PlayCommand nextPlay, MediaPlayer player, int indexTrack, Player controlPlayer) {
+    public PlayCommand(PlayCommand nextPlay, String path, MediaPlayer player, int indexTrack, Player controlPlayer) {
         this.nextPlay = nextPlay;
+        this.path = path;
         this.player = player;
         this.controlPlayer = controlPlayer;
         this.indexTrack = indexTrack;
@@ -36,8 +39,7 @@ public class PlayCommand implements Runnable {
         player.setOnEndOfMedia(nextPlay);
         connectTaskToPlayer();
         initTime();
-
-        System.out.println("start new track " + player.getMedia().getMetadata());
+        controlPlayer.setTextCurrentTrack(path);
         player.play();
     }
 
@@ -47,7 +49,7 @@ public class PlayCommand implements Runnable {
     private void connectTaskToPlayer() {
         controlPlayer.setPlayer(player);
         controlPlayer.setMedia(player.getMedia());
-        controlPlayer.incrementIndex(indexTrack);
+        controlPlayer.setIndexTrack(indexTrack);
     }
 
     /**

@@ -111,3 +111,15 @@
 .slider .track {
     -fx-background-color: -slider-track-color ;
 }
+
+.button {
+    -fx-background-color: transparent;
+}
+
+.button:hover {
+    -fx-background-color: rgba(226, 226, 243, 1);
+}
+
+.button:pressed {
+    -fx-background-color: rgba(113,101,177, 0.3);
+}

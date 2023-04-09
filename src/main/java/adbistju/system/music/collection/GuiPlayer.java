@@ -11,8 +11,11 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -38,21 +41,30 @@ public class GuiPlayer extends Application {
     public static String muss1 = "01. Butterfly (split).mp3";
     public static String muss2 = "30112022Ig_2.mp3";
     public static String muss3 = "John_Coltrane_-_Blue_Train_(-).mp3";
-    private static Player player = new Player();
+    private static Player player;
     private static VolumeController volumeController = new VolumeController();
 
     private static float count = 0;
 
-    Panel panel = new Panel("This is the title track");
+    private Panel panel = new Panel("This is the title track");
 
     @Override
     public void start(Stage stage) throws IOException, InvalidDataException, UnsupportedTagException {
+        player = new Player(panel);
+
+        MusicFile musicFile = new MusicFile(muss);
+        MusicFile musicFile1 = new MusicFile(muss1);
+        MusicFile musicFile2 = new MusicFile(muss2);
+        MusicFile musicFile3 = new MusicFile(muss3);
+        player.setPlaylist(List.of(musicFile, musicFile1, musicFile2, musicFile3, musicFile, musicFile1, musicFile2, musicFile3, musicFile, musicFile1, musicFile2, musicFile3));
+
         panel.setStyle("-fx-background-color: transparent");
         BorderPane content = new BorderPane();
         VBox vbox = vbox();
         List<MusicFile> tracks = player.getPlaylist();
-        track(vbox, tracks);
-        HBox div = div(playTrack(), divVolume());
+        Button playButton = playTrack();
+        track(vbox, tracks, playButton);
+        HBox div = div(playButton, divVolume());
         BorderPane dive = new BorderPane();
         Slider sliderTrack = sliderTrack();
         dive.setBottom(sliderTrack);
@@ -72,6 +84,7 @@ public class GuiPlayer extends Application {
         stage.setMinWidth(800);
         stage.sizeToScene();
         stage.show();
+
     }
 
     public VBox vbox() {
@@ -81,19 +94,26 @@ public class GuiPlayer extends Application {
         return vbox;
     }
 
-    public VBox track(VBox vbox, List<MusicFile> tracks) {
+    public VBox track(VBox vbox, List<MusicFile> tracks, Button buttonPlay) {
+        ImageView playButton = new ImageView(new Image("file:data/Play.png"));
+        ImageView pauseButton = new ImageView(new Image("file:data/Pause.png"));
         for (int i = 0; i < tracks.size(); i++) {
             Button currentTrack = new Button(String.valueOf(i));
             int finalI = i;
             EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent e) {
+//                    if (player.getStatus() == PLAYING) {
+//                        buttonPlay.setGraphic(pauseButton);
+//                        player.playList();
+//                    } else {
+//                        buttonPlay.setGraphic(playButton);
+//                        player.pauseMusic();
+//                    }
+                    buttonPlay.setGraphic(pauseButton);
                     player.stopMusic();
                     panel.setText(player.getPlaylist().get(finalI).getPath());
-                    Thread thread = new Thread(() -> {
-                        player.playList(finalI, -1);
-                    });
-                    thread.start();
+                    player.playList(finalI, -1);
                 }
             };
             currentTrack.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
@@ -111,13 +131,7 @@ public class GuiPlayer extends Application {
                         new Text("|"),
                         new Text(Optional.ofNullable(id3v1Tag.getArtist()).orElse("   ")),
                         new Text("|"),
-                        new Text((Optional.ofNullable(id3v1Tag.getGenre()).orElse(-1)) + " (" + Optional.ofNullable(id3v1Tag.getGenreDescription()).orElse("   ") + ")"),
-                        new Text("----_----"),
-                        new Text("----_----"),
-                        new Text("----_----"),
-                        new Text("----_----"),
-                        new Text("----_----"),
-                        new Text("-----")
+                        new Text((Optional.ofNullable(id3v1Tag.getGenre()).orElse(-1)) + " (" + Optional.ofNullable(id3v1Tag.getGenreDescription()).orElse("   ") + ")")
                 );
                 hBox.setAlignment(Pos.BASELINE_LEFT);
                 hBox.setSpacing(6);
@@ -161,7 +175,7 @@ public class GuiPlayer extends Application {
         div.setSpacing(20);
         div.setAlignment(Pos.BASELINE_CENTER);
         div.setMaxHeight(playTrackButton.getHeight());
-        div.getChildren().addAll(retry(), prevTrack(), pauseMusic(), nextTrack(), playTrackButton, stopMusic(), divVolume);
+        div.getChildren().addAll(retry(), prevTrack(), playTrackButton,/*pauseMusic(),*/ nextTrack(), stopMusic(playTrackButton), divVolume);
         div.setPadding(new Insets(10, 10, 10, 10));
         return div;
     }
@@ -183,15 +197,6 @@ public class GuiPlayer extends Application {
      */
 
     public static void main(String[] args) {
-        try {
-            MusicFile musicFile = new MusicFile(muss);
-            MusicFile musicFile1 = new MusicFile(muss1);
-            MusicFile musicFile2 = new MusicFile(muss2);
-            MusicFile musicFile3 = new MusicFile(muss3);
-            player.setPlaylist(List.of(musicFile, musicFile1, musicFile2, musicFile3/*, /*musicFile, musicFile1, musicFile2, musicFile3, musicFile, musicFile1, musicFile2, musicFile3*/));
-        } catch (IOException | UnsupportedTagException | InvalidDataException e) {
-
-        }
         launch();
     }
 
@@ -206,22 +211,22 @@ public class GuiPlayer extends Application {
                     100 - percentage, 100 - percentage);
         }, slider.valueProperty(), slider.minProperty(), slider.maxProperty()));
 
-        EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
+        EventHandler<MouseEvent> releasedHandler = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
                 player.rewind(slider.getValue());
                 clickSlider.set(false);
             }
         };
-        slider.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
+        slider.addEventFilter(MouseEvent.MOUSE_RELEASED, releasedHandler);
 
-        EventHandler<MouseEvent> pressed = new EventHandler<MouseEvent>() {
+        EventHandler<MouseEvent> pressedHandler = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
                 clickSlider.set(true);
             }
         };
-        slider.addEventFilter(MouseEvent.MOUSE_PRESSED, pressed);
+        slider.addEventFilter(MouseEvent.MOUSE_PRESSED, pressedHandler);
 
         //todo вынести в планировщик задач.
         Thread thread = new Thread(() -> {
@@ -253,81 +258,183 @@ public class GuiPlayer extends Application {
                             + "-slider-filled-track-color %f%%, -fx-base %f%%, -fx-base 100%%);",
                     percentage, percentage);
         }, slider.valueProperty(), slider.minProperty(), slider.maxProperty()));
-        EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
+        EventHandler<MouseEvent> releasedHandler = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
                 count = (float) slider.getValue();
                 volumeController.volumeControl(count);
             }
         };
-        slider.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
+        slider.addEventFilter(MouseEvent.MOUSE_RELEASED, releasedHandler);
         return slider;
     }
 
     public Button playTrack() {
-        Button buttonIco = new Button("play");
-        EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
+        ImageView playButton = new ImageView(new Image("file:data/Play.png"));
+        ImageView pauseButton = new ImageView(new Image("file:data/Pause.png"));
+        Button button = new Button("play", playButton);
+        button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        button.getStylesheets().add(0, "button.css");
+
+        double value = 50;
+        button.setMinWidth(value);
+        button.setMaxWidth(value);
+        button.setPrefWidth(value);
+
+        button.setMinHeight(value);
+        button.setMaxHeight(value);
+        button.setPrefHeight(value);
+
+        button.setMinSize(value, value);
+        button.setMaxSize(value, value);
+        button.setPrefSize(value, value);
+
+        EventHandler<MouseEvent> releasedHandler = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
-                panel.setText(player.getPlaylist().get(player.getIndexTrack()).getPath());
-                player.playList();
+                if (player.getStatus() != PLAYING) {
+                    button.setGraphic(pauseButton);
+                    player.playList();
+                } else {
+                    button.setGraphic(playButton);
+                    player.pauseMusic();
+                }
             }
         };
-        buttonIco.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
-        return buttonIco;
+        button.addEventFilter(MouseEvent.MOUSE_RELEASED, releasedHandler);
+        return button;
     }
 
     public Button nextTrack() {
-        Button button = new Button("NxTr");
-        EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
+        ImageView nextButton = new ImageView(new Image("file:data/Skip Fwd.png"));
+        Button button = new Button("NxTr", nextButton);
+        button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        button.getStylesheets().add(0, "button.css");
+
+        double value = 50;
+        button.setMinWidth(value);
+        button.setMaxWidth(value);
+        button.setPrefWidth(value);
+
+        button.setMinHeight(value);
+        button.setMaxHeight(value);
+        button.setPrefHeight(value);
+
+        button.setMinSize(value, value);
+        button.setMaxSize(value, value);
+        button.setPrefSize(value, value);
+
+        EventHandler<MouseEvent> releasedHandler = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
                 player.nextMusic();
             }
         };
-        button.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
+        button.addEventFilter(MouseEvent.MOUSE_RELEASED, releasedHandler);
         return button;
     }
 
     public Button prevTrack() {
-        Button button = new Button("PrTr");
-        EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
+
+        ImageView prevButton = new ImageView(new Image("file:data/Skip Back.png"));
+        Button button = new Button("PrTr", prevButton);
+        button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        button.getStylesheets().add(0, "button.css");
+
+        double value = 50;
+        button.setMinWidth(value);
+        button.setMaxWidth(value);
+        button.setPrefWidth(value);
+
+        button.setMinHeight(value);
+        button.setMaxHeight(value);
+        button.setPrefHeight(value);
+
+        button.setMinSize(value, value);
+        button.setMaxSize(value, value);
+        button.setPrefSize(value, value);
+
+        EventHandler<MouseEvent> releasedHandler = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
                 player.previousTrack();
             }
         };
-        button.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
+        button.addEventFilter(MouseEvent.MOUSE_RELEASED, releasedHandler);
         return button;
     }
 
     public Button retry() {
-        Button button = new Button("retry");
-        EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
+
+        ImageView repeatButtom = new ImageView(new Image("file:data/Repeat.png"));
+        ImageView noRepeatButtom = new ImageView(new Image("file:data/NoRepeat.png"));
+        Button button = new Button("retry", noRepeatButtom);
+        button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        button.getStylesheets().add(0, "button.css");
+
+        double value = 50;
+        button.setMinWidth(value);
+        button.setMaxWidth(value);
+        button.setPrefWidth(value);
+
+        button.setMinHeight(value);
+        button.setMaxHeight(value);
+        button.setPrefHeight(value);
+
+        button.setMinSize(value, value);
+        button.setMaxSize(value, value);
+        button.setPrefSize(value, value);
+
+        EventHandler<MouseEvent> releasedHandler = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
+                if (!player.getRetry()) {
+                    button.setGraphic(repeatButtom);
+                } else {
+                    button.setGraphic(noRepeatButtom);
+                }
                 player.retry();
+
             }
         };
-        button.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
+        button.addEventFilter(MouseEvent.MOUSE_RELEASED, releasedHandler);
         return button;
     }
 
-    public Button stopMusic() {
-        Button button = new Button("stop");
-        EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
+    public Button stopMusic(Button playButton) {
+        ImageView playButtonIcon = new ImageView(new Image("file:data/Play.png"));
+        ImageView stopButtom = new ImageView(new Image("file:data/Stop.png"));
+        Button button = new Button("stop", stopButtom);
+        button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        button.getStylesheets().add(0, "button.css");
+
+        double value = 50;
+        button.setMinWidth(value);
+        button.setMaxWidth(value);
+        button.setPrefWidth(value);
+
+        button.setMinHeight(value);
+        button.setMaxHeight(value);
+        button.setPrefHeight(value);
+
+        button.setMinSize(value, value);
+        button.setMaxSize(value, value);
+        button.setPrefSize(value, value);
+
+        EventHandler<MouseEvent> releasedHandler = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
+                playButton.setGraphic(playButtonIcon);
                 player.getTrack().setStartTime(Duration.ZERO);
                 player.getTrack().stop();
             }
         };
-        button.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
+        button.addEventFilter(MouseEvent.MOUSE_RELEASED, releasedHandler);
 
         return button;
     }
 
-    public Button pauseMusic() {
+    /*public Button pauseMusic() {
         Button button = new Button("pause");
         EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
             @Override
@@ -339,5 +446,5 @@ public class GuiPlayer extends Application {
         button.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
 
         return button;
-    }
+    }*/
 }
