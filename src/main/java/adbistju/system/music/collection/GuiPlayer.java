@@ -48,6 +48,10 @@ public class GuiPlayer extends Application {
 
     private Panel panel = new Panel("This is the title track");
 
+    public static void main(String[] args) {
+        launch();
+    }
+
     @Override
     public void start(Stage stage) throws IOException, InvalidDataException, UnsupportedTagException {
         player = new Player(panel);
@@ -75,6 +79,7 @@ public class GuiPlayer extends Application {
         background.setBody(panel);
         Scene scene = scene(stage, background);
         Platform.setImplicitExit(false);
+
         stage.setTitle("BootstrapFX");
         stage.setScene(scene);
         stage.setResizable(true);
@@ -103,13 +108,6 @@ public class GuiPlayer extends Application {
             EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent e) {
-//                    if (player.getStatus() == PLAYING) {
-//                        buttonPlay.setGraphic(pauseButton);
-//                        player.playList();
-//                    } else {
-//                        buttonPlay.setGraphic(playButton);
-//                        player.pauseMusic();
-//                    }
                     buttonPlay.setGraphic(pauseButton);
                     player.stopMusic();
                     panel.setText(player.getPlaylist().get(finalI).getPath());
@@ -190,14 +188,6 @@ public class GuiPlayer extends Application {
         Scene scene = new Scene(background, stage.getWidth(), stage.getHeight(), Color.TRANSPARENT);
         scene.getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());
         return scene;
-    }
-
-    /**
-     * https://coderlessons.com/tutorials/java-tekhnologii/vyuchi-javafx/javafx-effekty
-     */
-
-    public static void main(String[] args) {
-        launch();
     }
 
     public Slider sliderTrack() {
