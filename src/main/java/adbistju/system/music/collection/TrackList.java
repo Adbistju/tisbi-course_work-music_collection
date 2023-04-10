@@ -41,6 +41,9 @@ public class TrackList {
         return firstElement;
     }
 
+    /**
+     * Отдает первую ноу односвязного списка, для установки следующего трека воспроизведения. Зациклен.
+     */
     private void insertAfterNoRepeat(PlayCommand nextPlay, String path, MediaPlayer player, int indexTrack, Player controlPlayer) {
         Node newItem = new Node(nextPlay, path, player, indexTrack, controlPlayer);
         if (firstElement == null) {
@@ -65,6 +68,9 @@ public class TrackList {
         }
     }
 
+    /**
+     * Класс ноды для облегчения создания односвязного списка.
+     */
     class Node extends PlayCommand {
 
         public Node(PlayCommand nextPlay, String path, MediaPlayer player, int indexTrack, Player controlPlayer) {

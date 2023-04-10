@@ -7,12 +7,20 @@ import javax.sound.sampled.Line;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 
+/**
+ * Класс контороля громкости всего приложения.
+ */
 public class VolumeController {
 
     public VolumeController() {
 
     }
 
+    /**
+     * Установить громкость приложения.
+     *
+     * @param percentLevel - громкость в процентах.
+     */
     public void volumeControl(float percentLevel) {
         Mixer.Info[] mixers = AudioSystem.getMixerInfo();
         for (Mixer.Info mixerInfo : mixers) {

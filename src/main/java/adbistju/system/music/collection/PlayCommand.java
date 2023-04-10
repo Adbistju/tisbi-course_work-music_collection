@@ -8,12 +8,33 @@ import javafx.util.Duration;
  */
 public class PlayCommand implements Runnable {
 
+    /**
+     * Ссылка на контроллер плеера.
+     */
     private Player controlPlayer;
+    /**
+     * Ссылка на следующую композицию
+     */
     private PlayCommand nextPlay;
+    /**
+     * Сам плеер, занимается воспроизведением.
+     */
     private MediaPlayer player;
+    /**
+     * Указывает на какой временой отметке  начать воспроизведение.
+     */
     private Duration startPosition;
+    /**
+     * Указывает на какой временой отметке закончить воспроизведение.
+     */
     private Duration endPosition;
+    /**
+     * Номер трека в плейлисте.
+     */
     private int indexTrack;
+    /**
+     * Имя файла, нужно для отображения в UI
+     */
     private String path;
 
     public PlayCommand(PlayCommand nextPlay, String path, MediaPlayer player, int indexTrack, Duration startPosition, Duration endPosition, Player controlPlayer) {
@@ -44,7 +65,7 @@ public class PlayCommand implements Runnable {
     }
 
     /**
-     * Подключение задачие к плееру, для возмонжности управления воспроизведением.
+     * Подключение задачи к плееру, для возмонжности управления воспроизведением.
      */
     private void connectTaskToPlayer() {
         controlPlayer.setPlayer(player);

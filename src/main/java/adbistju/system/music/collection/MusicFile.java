@@ -9,8 +9,16 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Файл музыкального трека.
+ *
+ * Mp3File - позволяет получить информацию об файле.
+ */
 public class MusicFile extends Mp3File {
 
+    /**
+     * Путь до файла.
+     */
     private Path path;
 
     public MusicFile() {

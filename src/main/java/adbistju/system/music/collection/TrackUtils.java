@@ -1,5 +1,8 @@
 package adbistju.system.music.collection;
 
+/**
+ * Класс утилит для работы с композицией.
+ */
 public class TrackUtils {
 
     /**

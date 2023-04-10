@@ -1,6 +1,5 @@
 package adbistju.system.music.collection;
 
-import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
@@ -11,34 +10,56 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Класс плеера, осуществляет взаимодействие с UI и управляет процессом воспроизведения треков, их последовательности.
+ */
 public class Player {
 
     private static final int DEFAULT_POSITION = 0;
     private static final int END_VALUE = -1;
 
+    /**
+     * Ссылка на панель UI, для обновления названия трека.
+     */
     private Panel panel;
 
     private Media media;
     private MediaPlayer player;
 
+    /**
+     * Плей лист.
+     */
     private List<MusicFile> playlist;
+    /**
+     * Номер текущего трека.
+     */
     private AtomicInteger indexTrack;
+    /**
+     * Повторять ли плей лист?
+     */
     private AtomicBoolean retry;
+    /**
+     * Позиция трека текущего трека при остановке.
+     */
     private AtomicInteger positionTrack;
-    private AtomicBoolean pausePlay;
 
     public Player(Panel panel) {
         this.indexTrack = new AtomicInteger(DEFAULT_POSITION);
         this.retry = new AtomicBoolean(false);
         this.positionTrack = new AtomicInteger(DEFAULT_POSITION);
-        this.pausePlay = new AtomicBoolean(false);
         this.panel = panel;
     }
 
+    /**
+     * Начать воспроизведение с первого трека.
+     */
     public void playList() {
         playList(indexTrack.get(), END_VALUE);
     }
 
+    /**
+     * Начать воспроизведение с indexTrack трека, с указанием времени чала.
+     */
     public void playList(int indexTrack, double percentPosition) {
 
         if (player != null) {
@@ -55,7 +76,6 @@ public class Player {
             player.dispose();
         }
 
-        pausePlay.set(false);
         MusicFile currentFile = playlist.get(indexTrack);
         if (percentPosition >= DEFAULT_POSITION) {
             positionTrack.set(TrackUtils.convertPercentToFrame(currentFile, percentPosition));
@@ -75,6 +95,15 @@ public class Player {
 
     }
 
+    /**
+     * Воспроизвести трек.
+     *
+     * @param currentTrack
+     * @param prev
+     * @param indexTrack
+     * @param position
+     * @param endPosition
+     */
     public void playTrack(MusicFile currentTrack, PlayCommand prev, int indexTrack, Duration position, Duration endPosition) {
         this.indexTrack.set(indexTrack);
         this.positionTrack.set(DEFAULT_POSITION);
@@ -102,7 +131,6 @@ public class Player {
     }
 
     public void stopMusic() {
-        pausePlay.set(false);
         indexTrack.set(DEFAULT_POSITION);
         positionTrack.set(DEFAULT_POSITION);
 

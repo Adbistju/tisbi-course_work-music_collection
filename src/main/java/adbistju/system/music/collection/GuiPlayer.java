@@ -37,6 +37,11 @@ import static javafx.scene.media.MediaPlayer.Status.PLAYING;
 
 public class GuiPlayer extends Application {
 
+    /**
+     * Значения переменных muss можно заменить на доступные треки.
+     *
+     * Работа с фалйовой системой еще не готова.
+     */
     public static String muss = "01. Don-t Blame Me (Split).mp3";
     public static String muss1 = "01. Butterfly (split).mp3";
     public static String muss2 = "30112022Ig_2.mp3";
@@ -46,6 +51,9 @@ public class GuiPlayer extends Application {
 
     private static float count = 0;
 
+    /**
+     * Панель для отображения текущего трека.
+     */
     private Panel panel = new Panel("This is the title track");
 
     public static void main(String[] args) {
@@ -99,6 +107,14 @@ public class GuiPlayer extends Application {
         return vbox;
     }
 
+    /**
+     * Панель со списком треков и кнопок воспроизведения выбранного трека.
+     *
+     * @param vbox
+     * @param tracks коллекция композиций.
+     * @param buttonPlay кнопка play/pause
+     * @return
+     */
     public VBox track(VBox vbox, List<MusicFile> tracks, Button buttonPlay) {
         ImageView playButton = new ImageView(new Image("file:data/Play.png"));
         ImageView pauseButton = new ImageView(new Image("file:data/Pause.png"));
@@ -190,6 +206,10 @@ public class GuiPlayer extends Application {
         return scene;
     }
 
+    /**
+     * Слайдер трека.
+     * @return
+     */
     public Slider sliderTrack() {
         Slider slider = new Slider(0, 100, 50);
         slider.getStylesheets().add(0, "style.css");
@@ -237,6 +257,10 @@ public class GuiPlayer extends Application {
 
     private AtomicBoolean clickSlider = new AtomicBoolean(false);
 
+    /**
+     * Слайдер громкости прилоежния.
+     * @return
+     */
     public Slider sliderVolume() {
         Slider slider = new Slider(0, 100, 50);
         slider.getStylesheets().add(0, "style.css");
@@ -259,6 +283,10 @@ public class GuiPlayer extends Application {
         return slider;
     }
 
+    /**
+     * Кнопка play/pause.
+     * @return
+     */
     public Button playTrack() {
         ImageView playButton = new ImageView(new Image("file:data/Play.png"));
         ImageView pauseButton = new ImageView(new Image("file:data/Pause.png"));
@@ -295,6 +323,10 @@ public class GuiPlayer extends Application {
         return button;
     }
 
+    /**
+     * Кнопка следующего трека.
+     * @return
+     */
     public Button nextTrack() {
         ImageView nextButton = new ImageView(new Image("file:data/Skip Fwd.png"));
         Button button = new Button("NxTr", nextButton);
@@ -324,6 +356,10 @@ public class GuiPlayer extends Application {
         return button;
     }
 
+    /**
+     * Кнопка предыдущего трека.
+     * @return
+     */
     public Button prevTrack() {
 
         ImageView prevButton = new ImageView(new Image("file:data/Skip Back.png"));
@@ -354,6 +390,9 @@ public class GuiPlayer extends Application {
         return button;
     }
 
+    /**
+     * Создвем кнопку повторения плейлиста.
+     */
     public Button retry() {
 
         ImageView repeatButtom = new ImageView(new Image("file:data/Repeat.png"));
@@ -391,6 +430,12 @@ public class GuiPlayer extends Application {
         return button;
     }
 
+    /**
+     * Создаем кнопку stop.
+     *
+     * @param playButton готовая кнопка play/pause
+     * @return
+     */
     public Button stopMusic(Button playButton) {
         ImageView playButtonIcon = new ImageView(new Image("file:data/Play.png"));
         ImageView stopButtom = new ImageView(new Image("file:data/Stop.png"));
