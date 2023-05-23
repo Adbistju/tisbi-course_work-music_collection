@@ -1,5 +1,12 @@
 package adbistju.system.music.collection;
 
+import adbistju.system.music.collection.dto.ContentTrackListDto;
+import adbistju.system.music.collection.dto.FolderDto;
+import adbistju.system.music.collection.dto.GuiFileDto;
+import adbistju.system.music.collection.dto.MusicFileDto;
+import adbistju.system.music.collection.dto.TrackListDto;
+import adbistju.system.music.collection.fileSysten.FileManager;
+import adbistju.system.music.collection.fileSysten.FileSystemButton;
 import com.mpatric.mp3agic.ID3v1;
 import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.UnsupportedTagException;
@@ -14,6 +21,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -28,6 +36,7 @@ import org.kordamp.bootstrapfx.BootstrapFX;
 import org.kordamp.bootstrapfx.scene.layout.Panel;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -35,6 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static javafx.scene.media.MediaPlayer.Status.PLAYING;
 
+//todo класс нужно переработать
 public class GuiPlayer extends Application {
 
     /**
@@ -44,10 +54,12 @@ public class GuiPlayer extends Application {
      */
     public static String muss = "01. Don-t Blame Me (Split).mp3";
     public static String muss1 = "01. Butterfly (split).mp3";
-    public static String muss2 = "30112022Ig_2.mp3";
-    public static String muss3 = "John_Coltrane_-_Blue_Train_(-).mp3";
+    public static String muss2 = "John_Coltrane_-_Blue_Train_(-).mp3";
     private static Player player;
     private static VolumeController volumeController = new VolumeController();
+
+    private static FileSystemButton fileSystemButton;
+    private static FileManager fileManager = new FileManager("startFolder\\aa");
 
     private static float count = 0;
 
@@ -63,25 +75,29 @@ public class GuiPlayer extends Application {
     @Override
     public void start(Stage stage) throws IOException, InvalidDataException, UnsupportedTagException {
         player = new Player(panel);
+        fileSystemButton = new FileSystemButton(player, fileManager);
 
         MusicFile musicFile = new MusicFile(muss);
         MusicFile musicFile1 = new MusicFile(muss1);
         MusicFile musicFile2 = new MusicFile(muss2);
-        MusicFile musicFile3 = new MusicFile(muss3);
-        player.setPlaylist(List.of(musicFile, musicFile1, musicFile2, musicFile3, musicFile, musicFile1, musicFile2, musicFile3, musicFile, musicFile1, musicFile2, musicFile3));
+        player.setPlaylist(new ArrayList<MusicFile>(List.of(musicFile, musicFile1, musicFile2, musicFile, musicFile1, musicFile2, musicFile, musicFile1, musicFile2)));
 
         panel.setStyle("-fx-background-color: transparent");
         BorderPane content = new BorderPane();
         VBox vbox = vbox();
         List<MusicFile> tracks = player.getPlaylist();
         Button playButton = playTrack();
-        track(vbox, tracks, playButton);
+
+        //
+
+        tracks(vbox, tracks, playButton);
         HBox div = div(playButton, divVolume());
         BorderPane dive = new BorderPane();
         Slider sliderTrack = sliderTrack();
         dive.setBottom(sliderTrack);
-        content.setCenter(scrollPane(vbox, dive));
+        content.setCenter(scrollPane(vbox, dive, fileManager()));
         content.setBottom(div);
+
         panel.setBody(content);
         Panel background = background();
         background.setBody(panel);
@@ -100,6 +116,135 @@ public class GuiPlayer extends Application {
 
     }
 
+    private Panel fileManager() {
+        Panel panel= new Panel();
+
+        panel.setMinSize(300, 300);
+        panel.setStyle("-fx-background-color: red");
+
+        TextField textField = new TextField();
+
+        VBox vBox = new VBox();
+
+        String path = fileManager.getCurrentFolder();
+        textField.setText(path);
+        List<GuiFileDto> files = fileManager.listOfFiles(path);
+
+        for (int i = 0; i < files.size(); i++) {
+            String pathss = files.get(i).getName();
+            HBox hBox = new HBox(new Text("|"),
+                    new Text(pathss));
+            hBox.setAlignment(Pos.BASELINE_LEFT);
+            vBox.getChildren().add(hBox);
+        }
+
+        Button search = new Button("search");
+        EventHandler<MouseEvent> relesedsearch = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent e) {
+                recreateFileManager(textField, fileManager, panel);
+          /*      String path = textField.getCharacters().toString();
+                textField.setText(path);
+                List<GuiFileDto> files = fileManager.listOfFiles(path);
+                VBox locVBox = new VBox();
+                for (int i = 0; i < files.size(); i++) {
+                    GuiFileDto curFile = files.get(i);
+                    String pathss = files.get(i).getName();
+                    HBox hBox = new HBox();
+                    if (curFile instanceof MusicFile) {
+                        hBox = new HBox(new Button("add") ,new Text("|"),
+                                new Text(pathss), new Button("play"));
+
+                    } else if (curFile instanceof FolderDto) {
+                        hBox = new HBox(new Text("|"),
+                                new Text(pathss), new Button("open"));
+
+                    } else if (curFile instanceof TrackListDto) {
+                        hBox = new HBox(new Text("|"),
+                                new Text(pathss), new Button("read"), new Button("cp"), new Button("rn"), new Button("dlt"));
+
+                    }
+                    hBox.setAlignment(Pos.BASELINE_LEFT);
+                    locVBox.getChildren().add(hBox);
+                }
+
+                ScrollPane scrollPane = new ScrollPane();
+                scrollPane.getStylesheets().add(0, "style.css");
+                scrollPane.setContent(locVBox);
+
+                panel.setCenter(scrollPane);*/
+            }
+        };
+        search.addEventFilter(MouseEvent.MOUSE_RELEASED, relesedsearch);
+
+        Button button = new Button("prev");
+        EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent e) {
+                System.out.println("prev");
+                textField.setText(fileManager.getPrevFolder());
+                String path = textField.getCharacters().toString();
+                textField.setText(path);
+                recreateFileManager(textField, fileManager, panel);
+            }
+        };
+        button.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
+
+        HBox hBox = new HBox(button, textField, search);
+        panel.setTop(hBox);
+
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.getStylesheets().add(0, "style.css");
+        scrollPane.setContent(vBox);
+
+        panel.setCenter(scrollPane);
+        return panel;
+    }
+
+    private void recreateFileManager(TextField textField, FileManager fileManager, Panel panel) {
+        String path = textField.getCharacters().toString();
+        textField.setText(path);
+        List<GuiFileDto> files = fileManager.listOfFiles(path);
+        VBox locVBox = new VBox();
+        for (int i = 0; i < files.size(); i++) {
+            GuiFileDto curFile = files.get(i);
+            String pathss = files.get(i).getName();
+            HBox hBox = new HBox();
+
+            if (curFile instanceof MusicFileDto) {
+                Button add = fileSystemButton.createAdd(curFile.getFile());
+                Button playOne = fileSystemButton.createPlayOne(curFile.getFile());
+                hBox = new HBox(new Text("|"),
+                        new Text(pathss), add, playOne);
+
+            } else if (curFile instanceof FolderDto) {
+                Button open = fileSystemButton.createOpenFolder(curFile.getFile());
+                hBox = new HBox(new Text("|"),
+                        new Text(pathss), open);
+
+            } else if (curFile instanceof TrackListDto) {
+                Button read = fileSystemButton.createRead(curFile.getFile());
+                hBox = new HBox(new Text("|"),
+                        new Text(pathss), read, new Button("cp"), new Button("rn"), new Button("dlt"));
+
+            } else if (curFile instanceof ContentTrackListDto) {
+                hBox = new HBox(new Text("|"),
+                        new Text(pathss), new Button("delete"));
+            }
+
+            hBox.setAlignment(Pos.BASELINE_LEFT);
+            locVBox.getChildren().add(hBox);
+
+        }
+
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.getStylesheets().add(0, "style.css");
+        scrollPane.setContent(locVBox);
+
+        panel.setCenter(scrollPane);
+
+    }
+
     public VBox vbox() {
         VBox vbox = new VBox();
         vbox.setPadding(new Insets(10, 10, 10, 10));
@@ -115,22 +260,10 @@ public class GuiPlayer extends Application {
      * @param buttonPlay кнопка play/pause
      * @return
      */
-    public VBox track(VBox vbox, List<MusicFile> tracks, Button buttonPlay) {
-        ImageView playButton = new ImageView(new Image("file:data/Play.png"));
-        ImageView pauseButton = new ImageView(new Image("file:data/Pause.png"));
+    public VBox tracks(VBox vbox, List<MusicFile> tracks, Button buttonPlay) {
+        ImageView pauseButtonImage = new ImageView(new Image("file:data/Pause.png"));
         for (int i = 0; i < tracks.size(); i++) {
-            Button currentTrack = new Button(String.valueOf(i));
-            int finalI = i;
-            EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent e) {
-                    buttonPlay.setGraphic(pauseButton);
-                    player.stopMusic();
-                    panel.setText(player.getPlaylist().get(finalI).getPath());
-                    player.playList(finalI, -1);
-                }
-            };
-            currentTrack.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
+            Button currentTrack = createTrackPlayButton(i, buttonPlay, pauseButtonImage);
 
             try {
                 ID3v1 id3v1Tag = tracks.get(i).getId3v1Tag();
@@ -166,13 +299,30 @@ public class GuiPlayer extends Application {
         return vbox;
     }
 
-    public Panel scrollPane(VBox vbox, BorderPane dive) {
+    public Button createTrackPlayButton(int i, Button buttonPlay, ImageView pauseButton) {
+        Button currentTrack = new Button(String.valueOf(i));
+        int finalI = i;
+        EventHandler<MouseEvent> relesed = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent e) {
+                buttonPlay.setGraphic(pauseButton);
+                player.stopMusic();
+                panel.setText(player.getPlaylist().get(finalI).getPath());
+                player.playList(finalI, -1);
+            }
+        };
+        currentTrack.addEventFilter(MouseEvent.MOUSE_RELEASED, relesed);
+        return  currentTrack;
+    }
+
+    public Panel scrollPane(VBox vbox, BorderPane dive, Panel fileManager) {
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.getStylesheets().add(0, "style.css");
         scrollPane.setContent(vbox);
         Panel scrollPanel = new Panel();
         scrollPanel.setCenter(scrollPane);
         scrollPanel.setBottom(dive);
+        scrollPanel.setRight(fileManager);
         scrollPanel.setStyle("-fx-background-color: null");
         return scrollPanel;
     }
@@ -241,7 +391,7 @@ public class GuiPlayer extends Application {
         //todo вынести в планировщик задач.
         Thread thread = new Thread(() -> {
             long time = System.currentTimeMillis();
-            long delta = 50;
+            long delta = 500;
             while (true) {
                 if ((time + delta) - System.currentTimeMillis() <= 0) {
                     time = System.currentTimeMillis();

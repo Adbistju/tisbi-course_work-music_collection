@@ -10,6 +10,7 @@ module adbistju.system.musiccollection {
     requires mp3agic;
     requires jlayer;
     requires java.desktop;
+    requires commons.io;
 
     opens adbistju.system.music.collection to javafx.fxml;
     exports adbistju.system.music.collection;

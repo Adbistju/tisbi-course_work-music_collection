@@ -6,6 +6,7 @@ import javafx.util.Duration;
 import org.kordamp.bootstrapfx.scene.layout.Panel;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,7 +30,7 @@ public class Player {
     /**
      * Плей лист.
      */
-    private List<MusicFile> playlist;
+    private ArrayList<MusicFile> playlist;
     /**
      * Номер текущего трека.
      */
@@ -48,6 +49,10 @@ public class Player {
         this.retry = new AtomicBoolean(false);
         this.positionTrack = new AtomicInteger(DEFAULT_POSITION);
         this.panel = panel;
+    }
+
+    public void addPlayList() {
+        playList(indexTrack.get(), positionTrack.get());
     }
 
     /**
@@ -122,11 +127,11 @@ public class Player {
         panel.setText(currentTrack);
     }
 
-    public List<MusicFile> getPlaylist() {
+    public ArrayList<MusicFile> getPlaylist() {
         return playlist;
     }
 
-    public void setPlaylist(List<MusicFile> playlist) {
+    public void setPlaylist(ArrayList<MusicFile> playlist) {
         this.playlist = playlist;
     }
 
