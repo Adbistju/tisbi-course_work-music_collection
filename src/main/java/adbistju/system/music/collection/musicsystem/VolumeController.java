@@ -1,4 +1,6 @@
-package adbistju.system.music.collection;
+package adbistju.system.music.collection.musicsystem;
+
+import adbistju.system.music.collection.cdi.PostConstruct;
 
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -10,7 +12,7 @@ import javax.sound.sampled.Mixer;
 /**
  * Класс контороля громкости всего приложения.
  */
-public class VolumeController {
+public class VolumeController implements PostConstruct {
 
     public VolumeController() {
 
@@ -53,4 +55,8 @@ public class VolumeController {
         return mr / 100 * percentLevel;
     }
 
+    @Override
+    public void construct() {
+
+    }
 }

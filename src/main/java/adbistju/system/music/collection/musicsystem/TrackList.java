@@ -1,4 +1,4 @@
-package adbistju.system.music.collection;
+package adbistju.system.music.collection.musicsystem;
 
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -23,10 +23,10 @@ public class TrackList {
      */
     public Node toTrackListRepeat(int indexTrack, List<MusicFile> playlist, Player player) {
         for (int i = indexTrack + 1; i < playlist.size(); i++) {
-            insertAfterRepeat(null, playlist.get(i).getPath(), new MediaPlayer(new Media(new File(playlist.get(i).getPath()).toURI().toString())), indexTrack, player);
+            insertAfterRepeat(null, playlist.get(i).getFilename(), new MediaPlayer(new Media(new File(playlist.get(i).getPath()).toURI().toString())), indexTrack, player);
         }
         for (int i = 0; i <= indexTrack; i++) {
-            insertAfterRepeat(null, playlist.get(i).getPath(), new MediaPlayer(new Media(new File(playlist.get(i).getPath()).toURI().toString())), indexTrack, player);
+            insertAfterRepeat(null, playlist.get(i).getFilename(), new MediaPlayer(new Media(new File(playlist.get(i).getPath()).toURI().toString())), indexTrack, player);
         }
         return firstElement;
     }
@@ -36,7 +36,7 @@ public class TrackList {
      */
     public Node toTrackListNoRepeat(int indexTrack, List<MusicFile> playlist, Player player) {
         for (int i = indexTrack + 1; i < playlist.size(); i++) {
-            insertAfterNoRepeat(null, playlist.get(i).getPath(), new MediaPlayer(new Media(new File(playlist.get(i).getPath()).toURI().toString())), indexTrack, player);
+            insertAfterNoRepeat(null, playlist.get(i).getFilename(), new MediaPlayer(new Media(new File(playlist.get(i).getPath()).toURI().toString())), indexTrack, player);
         }
         return firstElement;
     }

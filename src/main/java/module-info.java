@@ -14,4 +14,8 @@ module adbistju.system.musiccollection {
 
     opens adbistju.system.music.collection to javafx.fxml;
     exports adbistju.system.music.collection;
+    exports adbistju.system.music.collection.musicsystem;
+    opens adbistju.system.music.collection.musicsystem to javafx.fxml;
+    exports adbistju.system.music.collection.cdi;
+    opens adbistju.system.music.collection.cdi to javafx.fxml;
 }

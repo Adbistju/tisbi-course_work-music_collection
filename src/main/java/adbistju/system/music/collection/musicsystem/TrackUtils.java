@@ -1,4 +1,4 @@
-package adbistju.system.music.collection;
+package adbistju.system.music.collection.musicsystem;
 
 /**
  * Класс утилит для работы с композицией.

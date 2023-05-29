@@ -1,28 +1,29 @@
-package adbistju.system.music.collection;
+package adbistju.system.music.collection.musicsystem;
 
+import adbistju.system.music.collection.cdi.DIControl;
+import adbistju.system.music.collection.cdi.PostConstruct;
+import adbistju.system.music.collection.UIMemento;
+import adbistju.system.music.collection.fileSysten.TrackListReader;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
-import org.kordamp.bootstrapfx.scene.layout.Panel;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * Класс плеера, осуществляет взаимодействие с UI и управляет процессом воспроизведения треков, их последовательности.
  */
-public class Player {
+public class Player implements PostConstruct {
 
     private static final int DEFAULT_POSITION = 0;
     private static final int END_VALUE = -1;
 
-    /**
-     * Ссылка на панель UI, для обновления названия трека.
-     */
-    private Panel panel;
+    private UIMemento uiMemento;
 
     private Media media;
     private MediaPlayer player;
@@ -44,15 +45,14 @@ public class Player {
      */
     private AtomicInteger positionTrack;
 
-    public Player(Panel panel) {
+    public Player() {
         this.indexTrack = new AtomicInteger(DEFAULT_POSITION);
         this.retry = new AtomicBoolean(false);
         this.positionTrack = new AtomicInteger(DEFAULT_POSITION);
-        this.panel = panel;
     }
 
     public void addPlayList() {
-        playList(indexTrack.get(), positionTrack.get());
+        uiMemento.updateTrackList(playlist);
     }
 
     /**
@@ -96,8 +96,6 @@ public class Player {
 
         playTrack(playlist.get(indexTrack), nextTracks, indexTrack, Duration.millis(positionTrack.get()), Duration.millis(currentFile.getLengthInMilliseconds()));
 
-//        playTrack(playlist.get(indexTrack), indexTrack, Duration.millis(currentFile.getLengthInMilliseconds()/2), Duration.millis(currentFile.getLengthInMilliseconds()/2+1500));
-
     }
 
     /**
@@ -110,11 +108,14 @@ public class Player {
      * @param endPosition
      */
     public void playTrack(MusicFile currentTrack, PlayCommand prev, int indexTrack, Duration position, Duration endPosition) {
+        uiMemento.updateTrackList(playlist);
         this.indexTrack.set(indexTrack);
         this.positionTrack.set(DEFAULT_POSITION);
-        media = new Media(new File(currentTrack.getPath()).toURI().toString());
 
-        setTextCurrentTrack(currentTrack.getPath());
+        File file = new File(currentTrack.getPath());
+        media = new Media(file.toURI().toString());
+
+        setTextCurrentTrack(currentTrack.getFilename());
 
         player = new MediaPlayer(media);
         player.setStartTime(position);
@@ -124,7 +125,7 @@ public class Player {
     }
 
     public void setTextCurrentTrack(String currentTrack) {
-        panel.setText(currentTrack);
+        uiMemento.setCurrentTrackName(currentTrack);
     }
 
     public ArrayList<MusicFile> getPlaylist() {
@@ -132,7 +133,12 @@ public class Player {
     }
 
     public void setPlaylist(ArrayList<MusicFile> playlist) {
+        indexTrack.set(0);
         this.playlist = playlist;
+        if (uiMemento != null) {
+            uiMemento.updateTrackList(playlist);
+        }
+
     }
 
     public void stopMusic() {
@@ -243,5 +249,19 @@ public class Player {
 
     public void setIndexTrack(int indexTrack) {
         this.indexTrack.set(indexTrack);
+    }
+
+    @Override
+    public void construct() {
+        this.uiMemento = (UIMemento) DIControl.getInstance("memento");
+        TrackListReader trackListReader = (TrackListReader) DIControl.getInstance("trackListReader");
+        this.playlist = (ArrayList<MusicFile>) trackListReader.listOfFiles().stream().filter(x->x.getName().matches("(.*).(mp3)$")).map(x-> {
+            try {
+                return new MusicFile(x.getFile());
+            } catch (Exception e) {
+                return null;
+            }
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+        trackListReader = null;
     }
 }

@@ -1,5 +1,8 @@
 package adbistju.system.music.collection.fileSysten;
 
+import adbistju.system.music.collection.cdi.DIControl;
+import adbistju.system.music.collection.cdi.PostConstruct;
+import adbistju.system.music.collection.UIMemento;
 import adbistju.system.music.collection.dto.FolderDto;
 import adbistju.system.music.collection.dto.GuiFileDto;
 import adbistju.system.music.collection.dto.MusicFileDto;
@@ -14,13 +17,14 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileManager {
+public class FileManager implements PostConstruct {
 
     private static final String mp3file = "(.*).(mp3)$";
-    private static final String txls = "(.*).(txls|txt)$";
+    private static final String txls = "(.*).(txls)$";
 
-    private String currentFolder = "startFolder";
-    private String root = "startFolder";
+    protected UIMemento uiMemento;
+    protected String currentFolder = "startFolder";
+    protected String root = "startFolder";
 
     public FileManager(String currentFolder) {
         this.currentFolder = currentFolder;
@@ -102,7 +106,6 @@ public class FileManager {
             BufferedReader reader = new BufferedReader(new FileReader(file));
             String line = reader.readLine();
             while (line != null) {
-                System.out.println(line);
                 line = reader.readLine();
             }
         } catch (IOException e) {
@@ -120,10 +123,6 @@ public class FileManager {
             this.currentFolder = this.currentFolder + "\\" + folderName;
         }
     }
-
-//    public void createDir(String fileName, String fullPath) {
-//        new File(fullPath + "\\" + fileName).mkdir();
-//    }
 
     public void createDir(String fileName) {
         new File(currentFolder + "\\" + fileName).mkdir();
@@ -143,12 +142,9 @@ public class FileManager {
             String fileName = file.getName();
             if (file.isDirectory()) {
                 filesList.add(new FolderDto(file));
-                System.out.println(file.getName() + "\\ ");
             } else if (fileName.matches(mp3file)) {
-                System.out.println(file.getName() + " ");
                 filesList.add(new MusicFileDto(file));
             } else if (fileName.matches(txls)) {
-                System.out.println(file.getName() + " ");
                 filesList.add(new TrackListDto(file));
             }
         }
@@ -156,14 +152,9 @@ public class FileManager {
         return filesList;
     }
 
-//    public static void main(String[] args) {
-////        FileManager fileManager = new FileManager("startFolder\\aa");
-////        List<File> filesList = fileManager.listOfFiles();
-////        System.out.println(filesList.size());
-////        fileManager.createDir("sms");
-//
-//        String a = "1.txt";
-//        String reg = "(.*).(mp3|txt)$";
-//        System.out.println(a.matches(reg));
-//    }
+    @Override
+    public void construct() {
+        this.uiMemento = (UIMemento) DIControl.getInstance("memento");
+    }
+
 }

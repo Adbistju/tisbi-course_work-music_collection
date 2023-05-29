@@ -1,4 +1,4 @@
-package adbistju.system.music.collection;
+package adbistju.system.music.collection.musicsystem;
 
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
