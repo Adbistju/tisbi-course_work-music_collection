@@ -51,3 +51,12 @@
 описание структуры проекта в соответствии с использованным инструментом разработки
 список литературы (8-10 наименований)
 полный листинг программы с краткими комментариями
+
+
+Как запустить?!
+
+C:\Users\Adbistju\.jdks\openjdk-21.0.1\bin\java --module-path "C:\openjfx-21.0.1_windows-x64_bin-sdk\javafx-sdk-21.0.1\lib" --add-modules javafx.controls,javafx.fxml,javafx.base,javafx.graphics,javafx.media -jar tisbi-course_work-music_collection-1.0-SNAPSHOT-jar-with-dependencies.jar
+
+собираем это mvn clean compile package
+
+Потом, когда запустилось, включаем javaFx в jar

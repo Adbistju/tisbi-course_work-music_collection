@@ -24,12 +24,6 @@
             <groupId>com.dlsc.formsfx</groupId>
             <artifactId>formsfx-core</artifactId>
             <version>11.3.2</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.kordamp.ikonli</groupId>
@@ -48,6 +42,13 @@
             <artifactId>javafx-media</artifactId>
             <version>11.0.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>11.0.2</version>
+        </dependency>
+        <!-- Thanks for using https://jar-download.com -->
+
 
         <dependency>
             <groupId>com.jfoenix</groupId>
@@ -81,8 +82,8 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-<!--Подрубить эту либу -->
-<!--    https://jacomp3player.sourceforge.net/index.html-->
+    <!--Подрубить эту либу -->
+    <!--    https://jacomp3player.sourceforge.net/index.html-->
     <build>
         <plugins>
             <plugin>
@@ -104,7 +105,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                adbistju.system.tisbicourse_workmusic_collection/adbistju.system.tisbicourse_workmusic_collection.Main
+                                adbistju.system.music.collection.EntryPoint
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
@@ -115,6 +116,34 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>adbistju.system.music.collection.EntryPoint</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.2.0</version>
             </plugin>
         </plugins>
     </build>

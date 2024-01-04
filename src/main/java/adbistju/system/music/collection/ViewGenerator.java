@@ -26,6 +26,8 @@ import javafx.scene.text.Text;
 import java.util.List;
 import java.util.Optional;
 
+import static adbistju.system.music.collection.GuiPlayer.pauseImage;
+
 public class ViewGenerator implements PostConstruct {
 
     private FileSystemButtonGenerator fileSystemButtonGenerator;
@@ -93,7 +95,7 @@ public class ViewGenerator implements PostConstruct {
 
     public VBox recreateTracks(List<MusicFile> tracks, Button buttonPlay) {
         VBox vbox = new VBox();
-        ImageView pauseButtonImage = new ImageView(new Image("file:data/Pause.png"));
+        ImageView pauseButtonImage = pauseImage;
         for (int i = 0; i < tracks.size(); i++) {
             Button currentTrack = fileSystemButtonGenerator.createTrackPlayButton(i, buttonPlay, pauseButtonImage);
 

@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+import static adbistju.system.music.collection.GuiPlayer.pauseImage;
+
 public class FileSystemButtonGenerator implements PostConstruct {
 
     private Player player;
@@ -48,7 +50,7 @@ public class FileSystemButtonGenerator implements PostConstruct {
     }
 
     public Button createPlayOne(File file, Button playButton) {
-        ImageView pauseButtonImage = new ImageView(new Image("file:data/Pause.png"));
+        ImageView pauseButtonImage = pauseImage;
         Button button = new Button("play");
 
         EventHandler<MouseEvent> released = new EventHandler<MouseEvent>() {
@@ -132,7 +134,7 @@ public class FileSystemButtonGenerator implements PostConstruct {
     }
 
     public Button createPlayTrackList(File file, Button playButton) {
-        ImageView pauseButtonImage = new ImageView(new Image("file:data/Pause.png"));
+        ImageView pauseButtonImage = pauseImage;
         Button button = new Button("play");
         EventHandler<MouseEvent> released = new EventHandler<MouseEvent>() {
             @Override

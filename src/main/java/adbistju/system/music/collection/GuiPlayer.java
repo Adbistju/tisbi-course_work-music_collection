@@ -38,12 +38,27 @@ import static javafx.scene.media.MediaPlayer.Status.PLAYING;
 
 public class GuiPlayer extends Application {
 
+    public static ImageView playImage;
+    public static ImageView pauseImage;
+    public static ImageView repeatImage;
+    public static ImageView noRepeatImage;
+    public static ImageView skipBackImage;
+    public static ImageView skipFwdImage;
+    public static ImageView stopImage;
+
     public static void main(String[] args) {
         launch();
     }
 
     @Override
     public void start(Stage stage) throws IOException, InvalidDataException, UnsupportedTagException {
+        playImage = new ImageView(new Image(getClass().getResource("/Play.png").openStream()));
+        pauseImage = new ImageView(new Image(getClass().getResource("/Pause.png").openStream()));
+        repeatImage = new ImageView(new Image(getClass().getResource("/Repeat.png").openStream()));
+        noRepeatImage = new ImageView(new Image(getClass().getResource("/NoRepeat.png").openStream()));
+        skipBackImage = new ImageView(new Image(getClass().getResource("/Skip Back.png").openStream()));
+        skipFwdImage = new ImageView(new Image(getClass().getResource("/Skip Fwd.png").openStream()));
+        stopImage = new ImageView(new Image(getClass().getResource("/Stop.png").openStream()));
 
         Button playButton = playTrack();
 
@@ -176,8 +191,8 @@ public class GuiPlayer extends Application {
      */
     public Button playTrack() {
 
-        ImageView playButton = new ImageView(new Image("file:data/Play.png"));
-        ImageView pauseButton = new ImageView(new Image("file:data/Pause.png"));
+        ImageView playButton = playImage;
+        ImageView pauseButton = pauseImage;
         Button button = new Button("play", playButton);
         button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         button.getStylesheets().add(0, "button.css");
@@ -218,8 +233,8 @@ public class GuiPlayer extends Application {
     public Button retry() {
         Player player = (Player) DIControl.getInstance("player");
 
-        ImageView repeatButtom = new ImageView(new Image("file:data/Repeat.png"));
-        ImageView noRepeatButtom = new ImageView(new Image("file:data/NoRepeat.png"));
+        ImageView repeatButtom = repeatImage;
+        ImageView noRepeatButtom = noRepeatImage;
         Button button = new Button("retry", noRepeatButtom);
         button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         button.getStylesheets().add(0, "button.css");
@@ -260,7 +275,7 @@ public class GuiPlayer extends Application {
     public Button prevTrack() {
         Player player = (Player) DIControl.getInstance("player");
 
-        ImageView prevButton = new ImageView(new Image("file:data/Skip Back.png"));
+        ImageView prevButton = skipBackImage;
         Button button = new Button("PrTr", prevButton);
         button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         button.getStylesheets().add(0, "button.css");
@@ -294,7 +309,7 @@ public class GuiPlayer extends Application {
      */
     public Button nextTrack() {
         Player player = (Player) DIControl.getInstance("player");
-        ImageView nextButton = new ImageView(new Image("file:data/Skip Fwd.png"));
+        ImageView nextButton = skipFwdImage;
         Button button = new Button("NxTr", nextButton);
         button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         button.getStylesheets().add(0, "button.css");
@@ -330,8 +345,8 @@ public class GuiPlayer extends Application {
      */
     public Button stopMusic(Button playButton) {
         Player player = (Player) DIControl.getInstance("player");
-        ImageView playButtonIcon = new ImageView(new Image("file:data/Play.png"));
-        ImageView stopButtom = new ImageView(new Image("file:data/Stop.png"));
+        ImageView playButtonIcon = playImage;
+        ImageView stopButtom = stopImage;
         Button button = new Button("stop", stopButtom);
         button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         button.getStylesheets().add(0, "button.css");
